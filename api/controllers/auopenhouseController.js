@@ -1,8 +1,26 @@
 'use strict';
 
-var mysql = require('mysql');
+exports.Authetication = function(req, res, next) {
+    console.log(req.method, req.url);
+    next();
+}
 
-exports.read_a_user = function(req, res, next) {};
+exports.welcome_page = function(req, res, next) {
+    res.send('Welcome to AuOpenHouse Api');
+}
 
+exports.list_all_users = function(req, res, next) {
+    req.getConnection(function(err, conn) {
 
-exports.read_a_user_test = function(re)
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query('SELECT * FROM heroku_8fddb363146ffaf.name;', function(err, results, fields) {
+            if (err) {
+                console.log(err);
+                return next("Mysql error, check your query");
+            }
+            res.json(results);
+        });
+    });
+
+}

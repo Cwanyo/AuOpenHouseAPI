@@ -1,73 +1,29 @@
 var express = require('express'),
     path = require('path'),
-    mysql = require('mysql'),
     bodyParser = require('body-parser'),
     expressValidator = require('express-validator'),
     app = express(),
     port = process.env.PORT || 3000;
 
-
-app.set('views', './views');
 app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(expressValidator());
 
-app.use(
+/*MySql connection*/
+var connection = require('express-myconnection'),
+    mysql = require('mysql'),
+    CLEARDB_DATABASE_URL = process.env.CLEARDB_DATABASE_URL;
 
-    connection(mysql, process.env.CLEARDB_DATABASE_URL, 'request')
+app.use(connection(mysql, CLEARDB_DATABASE_URL, 'pool'));
 
-);
+//Add Routes
+app.use('/api', require('./api/routes/auopenhouseRoute'));
 
-app.get('/', function(req, res) {
-    res.send('Welcome');
-});
-
-
-//RESTful route
-var router = express.Router();
-
-/*------------------------------------------------------
-*  This is router middleware,invoked everytime
-*  we hit url /api and anything after /api
-*  like /api/user , /api/user/7
-*  we can use this for doing validation,authetication
-*  for every route started with /api
---------------------------------------------------------*/
-router.use(function(req, res, next) {
-    console.log(req.method, req.url);
-    next();
-});
-
-var curut = router.route('/user');
-
-curut.get(function(req, res, next) {
-
-    req.getConnection(function(err, conn) {
-
-        if (err) return next("Cannot Connect");
-
-        var query = conn.query('SELECT * FROM heroku_8fddb363146ffaf.name;', function(err, results, fields) {
-
-            if (err) {
-                console.log(err);
-                return next("Mysql error, check your query");
-            }
-
-            res.json(results);
-
-        });
-
-    });
-
-});
-
-
-//start Server
+//Start Server
 var server = app.listen(port, function() {
-
-    console.log('AuOpenHouse RESTful API server started on: %s', server.address().port);
-
+    console.log('AuOpenHouse RESTful API server started on %s:%s', server.address().address, server.address().port);
 });
