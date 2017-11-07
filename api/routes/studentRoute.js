@@ -1,6 +1,6 @@
 'use strict';
 
-var auopenhouse = require('../controllers/auopenhouseController');
+var student = require('../controllers/studentController');
 
 var express = require('express');
 //RESTful route
@@ -13,15 +13,22 @@ var router = express.Router();
 *  we can use this for doing validation,authetication
 *  for every route started with /api
 --------------------------------------------------------*/
-router.use(auopenhouse.Authetication);
+router.use(student.Authetication);
 
 //Welcome route
 router.route('/')
-    .get(auopenhouse.welcome_page);
+    .get(student.welcome_page);
 
-//Test route
-router.route('/users')
-    .get(auopenhouse.list_all_users);
+router.route('/events')
+    .get(student.list_events);
 
+router.route('/event/:event_id')
+    .get(student.event_info);
+
+router.route('/faculties')
+    .get(student.list_faculties);
+
+router.route('/faculty/:faculty_id')
+    .get(student.faculty_info);
 
 module.exports = router;

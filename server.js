@@ -20,8 +20,8 @@ var connection = require('express-myconnection'),
 
 app.use(connection(mysql, CLEARDB_DATABASE_URL, 'pool'));
 
-//Add Routes
-app.use('/api', require('./api/routes/auopenhouseRoute'));
+//Student Routes
+app.use('/api/student', require('./api/routes/studentRoute'));
 
 //Start Server
 var server = app.listen(port, function() {
