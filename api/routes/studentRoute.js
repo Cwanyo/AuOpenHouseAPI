@@ -22,13 +22,13 @@ router.route('/')
 router.route('/events')
     .get(student.list_events);
 
-router.route('/event/:event_id')
+router.route('/events/:event_id')
     .get(student.event_info);
 
 router.route('/faculties')
     .get(student.list_faculties);
 
-router.route('/faculty/:faculty_id')
+router.route('/faculties/:faculty_id')
     .get(student.faculty_info);
 
 module.exports = router;
