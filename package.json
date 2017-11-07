@@ -30,7 +30,7 @@
         "mysql": "^2.15.0"
     },
     "engines": {
-        "node": "latest",
-        "npm": "latest"
+        "node": "8.4.0",
+        "npm": "5.3.0"
     }
 }
