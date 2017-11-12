@@ -1,8 +1,26 @@
 'use strict';
 
 exports.Authetication = function(req, res, next) {
+    console.log("Authetication");
     console.log(req.method, req.url);
     next();
+}
+
+exports.SetTimeZone = function(req, res, next) {
+    console.log("SetTimeZone");
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query("SET SESSION time_zone = '+7:00';", function(err, results, fields) {
+            if (err) {
+                console.log(err);
+                return next("Mysql error, check your query");
+            }
+
+            next();
+        });
+    });
 }
 
 exports.welcome_page = function(req, res, next) {
@@ -123,6 +141,23 @@ exports.major_info = function(req, res, next) {
                 return res.send("Major Not found");
             }
 
+            res.json(results);
+        });
+    });
+
+}
+
+exports.list_upcoming_events = function(req, res, next) {
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query("SELECT * FROM heroku_8fddb363146ffaf.event natural join heroku_8fddb363146ffaf.event_time where current_timestamp() between Time_Start-interval 1 hour and Time_End;", function(err, results, fields) {
+            if (err) {
+                console.log(err);
+                return next("Mysql error, check your query");
+            }
             res.json(results);
         });
     });

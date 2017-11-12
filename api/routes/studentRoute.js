@@ -13,6 +13,7 @@ var router = express.Router();
 *  we can use this for doing validation,authetication
 *  for every route started with /api
 --------------------------------------------------------*/
+//router.use(student.SetTimeZone);
 router.use(student.Authetication);
 
 //Welcome route
@@ -33,6 +34,9 @@ router.route('/faculties/:faculty_id/majors')
 
 router.route('/faculties/:faculty_id/majors/:major_id')
     .get(student.major_info);
+
+router.route('/upevents')
+    .get(student.list_upcoming_events);
 
 router.route('/events')
     .get(student.list_events);
