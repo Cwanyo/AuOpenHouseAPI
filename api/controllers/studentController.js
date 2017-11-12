@@ -6,23 +6,6 @@ exports.Authetication = function(req, res, next) {
     next();
 }
 
-exports.SetTimeZone = function(req, res, next) {
-
-    req.getConnection(function(err, conn) {
-
-        if (err) return next("Cannot Connect");
-
-        var query = conn.query("SET SESSION time_zone = '+7:00';", function(err, results, fields) {
-            if (err) {
-                console.log(err);
-                return next("Mysql error, check your query");
-            }
-            console.log("SetTimeZone");
-            next();
-        });
-    });
-}
-
 exports.welcome_page = function(req, res, next) {
     res.send("Welcome to AuOpenHouse-Student Api");
 }
@@ -158,6 +141,7 @@ exports.list_upcoming_events = function(req, res, next) {
                 console.log(err);
                 return next("Mysql error, check your query");
             }
+
             res.json(results);
         });
     });

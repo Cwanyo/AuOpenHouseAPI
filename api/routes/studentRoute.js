@@ -13,7 +13,6 @@ var router = express.Router();
 *  we can use this for doing validation,authetication
 *  for every route started with /api
 --------------------------------------------------------*/
-router.use(student.SetTimeZone);
 router.use(student.Authetication);
 
 //Welcome route
