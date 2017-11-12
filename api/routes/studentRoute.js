@@ -13,6 +13,8 @@ var router = express.Router();
 *  we can use this for doing validation,authetication
 *  for every route started with /api
 --------------------------------------------------------*/
+//SET MYSQL TIME ZONE OFFSET TO THAILAND (+07:00)
+router.use(student.SetTimeZone);
 router.use(student.Authetication);
 
 //Welcome route
