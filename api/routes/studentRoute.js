@@ -20,18 +20,24 @@ router.route('/')
     .get(student.welcome_page);
 
 router.route('/login')
-    .put(student.login)
-
-router.route('/events')
-    .get(student.list_events);
-
-router.route('/events/:event_id')
-    .get(student.event_info);
+    .put(student.login);
 
 router.route('/faculties')
     .get(student.list_faculties);
 
 router.route('/faculties/:faculty_id')
     .get(student.faculty_info);
+
+router.route('/faculties/:faculty_id/majors')
+    .get(student.list_majors);
+
+router.route('/faculties/:faculty_id/majors/:major_id')
+    .get(student.major_info);
+
+router.route('/events')
+    .get(student.list_events);
+
+router.route('/events/:event_id')
+    .get(student.event_info);
 
 module.exports = router;

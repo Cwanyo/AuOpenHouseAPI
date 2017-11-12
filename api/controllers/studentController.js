@@ -32,53 +32,12 @@ exports.login = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query("INSERT INTO `heroku_8fddb363146ffaf`.`student` (`SID`, `Name`, `Image`, `Email`) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE Name=?,Image=?;", [data.sid, data.name, data.image, data.email, data.name, data.image], function(err, results, fields) {
+        var query = conn.query("INSERT INTO `heroku_8fddb363146ffaf`.`student` (`SID`, `Name`, `Image`, `Email`) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE Name = ?, Image = ?;", [data.sid, data.name, data.image, data.email, data.name, data.image], function(err, results, fields) {
             if (err) {
                 console.log(err);
                 return next("Mysql error, check your query");
             }
             res.sendStatus(200);
-        });
-    });
-
-}
-
-exports.list_events = function(req, res, next) {
-
-    req.getConnection(function(err, conn) {
-
-        if (err) return next("Cannot Connect");
-
-        var query = conn.query("SELECT * FROM heroku_8fddb363146ffaf.event;", function(err, results, fields) {
-            if (err) {
-                console.log(err);
-                return next("Mysql error, check your query");
-            }
-            res.json(results);
-        });
-    });
-
-}
-
-exports.event_info = function(req, res, next) {
-
-    var event_id = req.params.event_id;
-
-    req.getConnection(function(err, conn) {
-
-        if (err) return next("Cannot Connect");
-
-        var query = conn.query("SELECT * FROM heroku_8fddb363146ffaf.event WHERE eid = ?;", [event_id], function(err, results, fields) {
-            if (err) {
-                console.log(err);
-                return next("Mysql error, check your query");
-            }
-
-            if (results.length < 1) {
-                return res.send("Event Not found");
-            }
-
-            res.json(results);
         });
     });
 
@@ -118,6 +77,91 @@ exports.faculty_info = function(req, res, next) {
 
             if (results.length < 1) {
                 return res.send("Faculty Not found");
+            }
+
+            res.json(results);
+        });
+    });
+
+}
+
+exports.list_majors = function(req, res, next) {
+
+    var faculty_id = req.params.faculty_id;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query("SELECT * FROM heroku_8fddb363146ffaf.major WHERE fid = ?;", [faculty_id], function(err, results, fields) {
+            if (err) {
+                console.log(err);
+                return next("Mysql error, check your query");
+            }
+            res.json(results);
+        });
+    });
+
+}
+
+exports.major_info = function(req, res, next) {
+
+    var faculty_id = req.params.faculty_id;
+    var major_id = req.params.major_id;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query("SELECT * FROM heroku_8fddb363146ffaf.major WHERE fid = ? and mid = ?;", [faculty_id, major_id], function(err, results, fields) {
+            if (err) {
+                console.log(err);
+                return next("Mysql error, check your query");
+            }
+
+            if (results.length < 1) {
+                return res.send("Major Not found");
+            }
+
+            res.json(results);
+        });
+    });
+
+}
+
+exports.list_events = function(req, res, next) {
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query("SELECT * FROM heroku_8fddb363146ffaf.event;", function(err, results, fields) {
+            if (err) {
+                console.log(err);
+                return next("Mysql error, check your query");
+            }
+            res.json(results);
+        });
+    });
+
+}
+
+exports.event_info = function(req, res, next) {
+
+    var event_id = req.params.event_id;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query("SELECT * FROM heroku_8fddb363146ffaf.event WHERE eid = ?;", [event_id], function(err, results, fields) {
+            if (err) {
+                console.log(err);
+                return next("Mysql error, check your query");
+            }
+
+            if (results.length < 1) {
+                return res.send("Event Not found");
             }
 
             res.json(results);
