@@ -19,6 +19,9 @@ router.use(student.Authetication);
 router.route('/')
     .get(student.welcome_page);
 
+router.route('/login')
+    .put(student.login)
+
 router.route('/events')
     .get(student.list_events);
 
