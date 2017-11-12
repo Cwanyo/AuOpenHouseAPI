@@ -16,7 +16,7 @@ var express = require('express'),
         "client_x509_cert_url": process.env.FIREBASE_CLIENT_X509_CERT_URL
     },
     app = express(),
-    port = process.env.PORT || 3000;
+    port = process.env.PORT || 8080;
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -44,5 +44,5 @@ app.use('/api/student', require('./api/routes/studentRoute'));
 
 //Start Server
 var server = app.listen(port, function() {
-    console.log('AuOpenHouse RESTful API server started on %s:%s', server.address().address, server.address().port);
+    console.log('AuOpenHouse RESTful API server started on port :: %s', server.address().port);
 });

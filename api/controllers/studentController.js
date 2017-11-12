@@ -27,7 +27,6 @@ exports.login = function(req, res, next) {
         image: req.body.image,
         email: req.body.email
     };
-    console.log(data.sid);
 
     req.getConnection(function(err, conn) {
 
