@@ -7,7 +7,7 @@ exports.Authetication = function(req, res, next) {
 }
 
 exports.SetTimeZone = function(req, res, next) {
-    console.log("SetTimeZone");
+
     req.getConnection(function(err, conn) {
 
         if (err) return next("Cannot Connect");
@@ -17,7 +17,7 @@ exports.SetTimeZone = function(req, res, next) {
                 console.log(err);
                 return next("Mysql error, check your query");
             }
-
+            console.log("SetTimeZone");
             next();
         });
     });
