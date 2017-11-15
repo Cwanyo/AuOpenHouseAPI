@@ -12,14 +12,15 @@ exports.SetTimeZone = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query("SET SESSION time_zone = '+7:00';", function(err, results, fields) {
-            if (err) {
-                console.log(err);
-                return next("Mysql error, check your query");
-            }
-            console.log("SetTimeZone");
-            next();
-        });
+        var query = conn.query("SET SESSION time_zone = '+7:00';",
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
+                console.log("SetTimeZone");
+                next();
+            });
     });
 
 }
@@ -51,13 +52,16 @@ exports.login = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query("INSERT INTO `heroku_8fddb363146ffaf`.`student` (`SID`, `Name`, `Image`, `Email`) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE Name = ?, Image = ?;", [data.sid, data.name, data.image, data.email, data.name, data.image], function(err, results, fields) {
-            if (err) {
-                console.log(err);
-                return next("Mysql error, check your query");
-            }
-            res.sendStatus(200);
-        });
+        var query = conn.query(
+            "INSERT INTO `heroku_8fddb363146ffaf`.`student` (`SID`, `Name`, `Image`, `Email`)" +
+            "VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE Name = ?, Image = ?;", [data.sid, data.name, data.image, data.email, data.name, data.image],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
+                res.sendStatus(200);
+            });
     });
 
 }
@@ -68,14 +72,17 @@ exports.list_faculties = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query("SELECT * FROM heroku_8fddb363146ffaf.faculty;", function(err, results, fields) {
-            if (err) {
-                console.log(err);
-                return next("Mysql error, check your query");
-            }
+        var query = conn.query(
+            "SELECT * " +
+            "FROM heroku_8fddb363146ffaf.faculty; ",
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
 
-            res.json(results);
-        });
+                res.json(results);
+            });
     });
 
 }
@@ -88,18 +95,22 @@ exports.faculty_info = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query("SELECT * FROM heroku_8fddb363146ffaf.faculty WHERE fid = ?;", [faculty_id], function(err, results, fields) {
-            if (err) {
-                console.log(err);
-                return next("Mysql error, check your query");
-            }
+        var query = conn.query(
+            "SELECT * " +
+            "FROM heroku_8fddb363146ffaf.faculty " +
+            "WHERE fid = ?; ", [faculty_id],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
 
-            if (results.length < 1) {
-                return res.send("Faculty Not found");
-            }
+                if (results.length < 1) {
+                    return res.send("Faculty Not found");
+                }
 
-            res.json(results);
-        });
+                res.json(results);
+            });
     });
 
 }
@@ -112,13 +123,17 @@ exports.list_majors = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query("SELECT * FROM heroku_8fddb363146ffaf.major WHERE fid = ?;", [faculty_id], function(err, results, fields) {
-            if (err) {
-                console.log(err);
-                return next("Mysql error, check your query");
-            }
-            res.json(results);
-        });
+        var query = conn.query(
+            "SELECT * " +
+            "FROM heroku_8fddb363146ffaf.major " +
+            "WHERE fid = ?; ", [faculty_id],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
+                res.json(results);
+            });
     });
 
 }
@@ -132,18 +147,22 @@ exports.major_info = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query("SELECT * FROM heroku_8fddb363146ffaf.major WHERE fid = ? and mid = ?;", [faculty_id, major_id], function(err, results, fields) {
-            if (err) {
-                console.log(err);
-                return next("Mysql error, check your query");
-            }
+        var query = conn.query(
+            "SELECT * " +
+            "FROM heroku_8fddb363146ffaf.major " +
+            "WHERE fid = ? and mid = ?; ", [faculty_id, major_id],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
 
-            if (results.length < 1) {
-                return res.send("Major Not found");
-            }
+                if (results.length < 1) {
+                    return res.send("Major Not found");
+                }
 
-            res.json(results);
-        });
+                res.json(results);
+            });
     });
 
 }
@@ -154,14 +173,102 @@ exports.list_upcoming_events = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query("SELECT * FROM heroku_8fddb363146ffaf.event natural join heroku_8fddb363146ffaf.event_time where current_timestamp() between Time_Start-interval 1 hour and Time_End;", function(err, results, fields) {
-            if (err) {
-                console.log(err);
-                return next("Mysql error, check your query");
-            }
+        var query = conn.query(
+            "SELECT * " +
+            "FROM heroku_8fddb363146ffaf.event natural join heroku_8fddb363146ffaf.event_time " +
+            "WHERE current_timestamp() between Time_Start-interval 1 hour and Time_End; ",
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
 
-            res.json(results);
-        });
+                if (results.length < 1) {
+                    return res.send("Upcoming Events Not found");
+                }
+
+                res.json(results);
+            });
+    });
+
+}
+
+exports.list_student_attend_events = function(req, res, next) {
+
+    //validation
+    req.assert("sid", "UUID is required").notEmpty();
+
+    var errors = req.validationErrors();
+    if (errors) {
+        res.status(422).json(errors);
+        return;
+    }
+
+    var sid = req.body.sid;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query(
+            "SELECT * " +
+            "FROM heroku_8fddb363146ffaf.event_time NATURAL JOIN heroku_8fddb363146ffaf.event " +
+            "WHERE tid in ( " +
+            "SELECT tid " +
+            "FROM heroku_8fddb363146ffaf.student_attend_event_time " +
+            "WHERE sid = ?)", [sid],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
+
+                if (results.length < 1) {
+                    return res.send("Attend Events Not found");
+                }
+
+                res.json(results);
+            });
+    });
+
+}
+
+exports.student_join_event = function(req, res, next) {
+
+    var event_time = req.params.event_time;
+    //validation
+    req.assert("sid", "UUID is required").notEmpty();
+
+    var errors = req.validationErrors();
+    if (errors) {
+        res.status(422).json(errors);
+        return;
+    }
+
+    var sid = req.body.sid;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query(
+            "INSERT INTO `heroku_8fddb363146ffaf`.`student_attend_event_time` (`SID`, `TID`) " +
+            "VALUES (?, ?); ", [sid, event_time],
+            function(err, results, fields) {
+                if (err) {
+                    switch (err.code) {
+                        case "ER_DUP_ENTRY":
+                            console.log("duplicate entry");
+                            break;
+                        case "ER_NO_REFERENCED_ROW_2":
+                            console.log("event time not found or user not found");
+                            break;
+                    }
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
+                res.sendStatus(200);
+            });
     });
 
 }
@@ -172,13 +279,16 @@ exports.list_events = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query("SELECT * FROM heroku_8fddb363146ffaf.event;", function(err, results, fields) {
-            if (err) {
-                console.log(err);
-                return next("Mysql error, check your query");
-            }
-            res.json(results);
-        });
+        var query = conn.query(
+            "SELECT * " +
+            "FROM heroku_8fddb363146ffaf.event;",
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
+                res.json(results);
+            });
     });
 
 }
@@ -191,18 +301,22 @@ exports.event_info = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query("SELECT * FROM heroku_8fddb363146ffaf.event WHERE eid = ?;", [event_id], function(err, results, fields) {
-            if (err) {
-                console.log(err);
-                return next("Mysql error, check your query");
-            }
+        var query = conn.query(
+            "SELECT *" +
+            "FROM heroku_8fddb363146ffaf.event" +
+            "WHERE eid = ?;", [event_id],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
 
-            if (results.length < 1) {
-                return res.send("Event Not found");
-            }
+                if (results.length < 1) {
+                    return res.send("Event Not found");
+                }
 
-            res.json(results);
-        });
+                res.json(results);
+            });
     });
 
 }

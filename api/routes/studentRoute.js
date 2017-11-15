@@ -39,6 +39,12 @@ router.route('/faculties/:faculty_id/majors/:major_id')
 router.route('/upevents')
     .get(student.list_upcoming_events);
 
+router.route('/myevents')
+    .post(student.list_student_attend_events);
+
+router.route('/myevents/:event_time/join')
+    .post(student.student_join_event);
+
 router.route('/events')
     .get(student.list_events);
 
