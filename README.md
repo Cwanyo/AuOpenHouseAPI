@@ -8,7 +8,7 @@
 
 | Title | Method | URL | URL Params | Data Params |
 |-------|:------:|:----|:----------:|:-----------:|
-| Student login | PUT | /login | - | sid=[string]<br>name=[string]<br>image=[string]<br>email=[string] |
+| Student login | PUT | /login | - | idToken=[string] |
 | Get list of all faculties | GET | /faculties | - | - |
 | Get faculty details | GET | /faculties/:faculty_id | faculty_id=[int] | - |
 | Get list of all majors in the faculty | GET | /faculties/:faculty_id/majors | faculty_id=[int] | - |

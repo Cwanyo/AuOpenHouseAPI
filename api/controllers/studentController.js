@@ -1,9 +1,34 @@
 'use strict';
 
+/*Initialize Firebase*/
+var admin = require("firebase-admin"),
+    serviceAccount = {
+        "type": process.env.FIREBASE_TYPE,
+        "project_id": process.env.FIREBASE_PROJECT_ID,
+        "private_key_id": process.env.FIREBASE_PRIVATE_KEY_ID,
+        "private_key": process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        "client_email": process.env.FIREBASE_CLIENT_EMAIL,
+        "client_id": process.env.FIREBASE_CLIENT_ID,
+        "auth_uri": process.env.FIREBASE_AUTH_URI,
+        "token_uri": process.env.FIREBASE_TOKEN_URI,
+        "auth_provider_x509_cert_url": process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+        "client_x509_cert_url": process.env.FIREBASE_CLIENT_X509_CERT_URL
+    };
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://auopenhouse-wvn.firebaseio.com"
+});
+
 exports.Authetication = function(req, res, next) {
+    console.log("ses", req.session);
     console.log("Authetication");
-    console.log(req.method, req.url);
-    next();
+    if (req.session.sid) {
+        console.log(req.method, req.url);
+        next();
+    } else {
+        res.sendStatus(401);
+    }
 }
 
 exports.SetTimeZone = function(req, res, next) {
@@ -32,8 +57,7 @@ exports.welcome_page = function(req, res, next) {
 exports.login = function(req, res, next) {
 
     //validation
-    req.assert("sid", "UUID is required").notEmpty();
-    req.assert("name", "Name is required").notEmpty();
+    req.assert("idToken", "idToken is required").notEmpty();
 
     var errors = req.validationErrors();
     if (errors) {
@@ -41,28 +65,58 @@ exports.login = function(req, res, next) {
         return;
     }
 
-    var data = {
-        sid: req.body.sid,
-        name: req.body.name,
-        image: req.body.image,
-        email: req.body.email
-    };
+    admin.auth().verifyIdToken(req.body.idToken)
+        .then(function(decodedToken) {
+            var data = {
+                sid: decodedToken.uid,
+                name: decodedToken.name,
+                image: decodedToken.picture,
+                email: decodedToken.email
+            };
 
-    req.getConnection(function(err, conn) {
+            req.getConnection(function(err, conn) {
 
-        if (err) return next("Cannot Connect");
+                if (err) return next("Cannot Connect");
 
-        var query = conn.query(
-            "INSERT INTO `heroku_8fddb363146ffaf`.`student` (`SID`, `Name`, `Image`, `Email`)" +
-            "VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE Name = ?, Image = ?;", [data.sid, data.name, data.image, data.email, data.name, data.image],
-            function(err, results, fields) {
-                if (err) {
-                    console.log(err);
-                    return next("Mysql error, check your query");
-                }
-                res.sendStatus(200);
+                var query = conn.query(
+                    "INSERT INTO `heroku_8fddb363146ffaf`.`student` (`SID`, `Name`, `Image`, `Email`)" +
+                    "VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE Name = ?, Image = ?, Email = ?;", [data.sid, data.name, data.image, data.email, data.name, data.image, data.email],
+                    function(err, results, fields) {
+                        if (err) {
+                            console.log(err);
+                            return next("Mysql error, check your query");
+                        }
+
+                        //Regenerate session
+                        req.session.regenerate(function() {
+                            req.session.sid = data.sid;
+                            console.log("log", req.session);
+                        });
+
+                        res.status(200).json({ "isSuccess": true, "message": "Authentication Passed" });
+                    });
             });
-    });
+
+        })
+        .catch(function(error) {
+            res.status(401).json({ "isSuccess": false, "message": "Fail to Verify IdToken" });
+        });
+
+}
+
+exports.logout = function(req, res, next) {
+    console.log("logout");
+    if (req.session) {
+        //Delete session object
+        req.session.destroy(function(err) {
+            if (err) {
+                return next(err);
+            } else {
+                return res.sendStatus(204);
+                //return res.redirect('/');
+            }
+        });
+    }
 
 }
 

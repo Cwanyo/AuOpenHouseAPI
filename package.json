@@ -25,6 +25,7 @@
         "ejs": "^2.5.7",
         "express": "^4.16.2",
         "express-myconnection": "^1.0.4",
+        "express-session": "^1.15.6",
         "express-validator": "^4.3.0",
         "firebase-admin": "^5.4.3",
         "foreman": "2.0.0",

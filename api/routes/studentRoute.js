@@ -15,7 +15,6 @@ var router = express.Router();
 --------------------------------------------------------*/
 //SET MYSQL TIME ZONE OFFSET TO THAILAND (+07:00)
 router.use(student.SetTimeZone);
-router.use(student.Authetication);
 
 //Welcome route
 router.route('/')
@@ -23,6 +22,11 @@ router.route('/')
 
 router.route('/login')
     .put(student.login);
+
+router.route('/logout')
+    .get(student.logout);
+
+router.use(student.Authetication);
 
 router.route('/faculties')
     .get(student.list_faculties);
