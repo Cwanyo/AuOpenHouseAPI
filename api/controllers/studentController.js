@@ -90,10 +90,8 @@ exports.login = function(req, res, next) {
                         //Regenerate session
                         req.session.regenerate(function() {
                             req.session.sid = data.sid;
-                            console.log("log", req.session);
+                            res.status(200).json({ "isSuccess": true, "message": "Authentication Passed" });
                         });
-
-                        res.status(200).json({ "isSuccess": true, "message": "Authentication Passed" });
                     });
             });
 
