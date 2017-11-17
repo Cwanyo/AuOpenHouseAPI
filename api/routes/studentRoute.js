@@ -6,16 +6,6 @@ var express = require('express');
 //RESTful route
 var router = express.Router();
 
-/*------------------------------------------------------
-*  This is router middleware,invoked everytime
-*  we hit url /api and anything after /api
-*  like /api/user , /api/user/7
-*  we can use this for doing validation,authetication
-*  for every route started with /api
---------------------------------------------------------*/
-//SET MYSQL TIME ZONE OFFSET TO THAILAND (+07:00)
-router.use(student.SetTimeZone);
-
 //Welcome route
 router.route('/')
     .get(student.welcome_page);
@@ -26,7 +16,11 @@ router.route('/login')
 router.route('/logout')
     .get(student.logout);
 
-router.use(student.Authetication);
+//All below routes requires to set MYSQL time zone offset to Thailand (+07:00)
+router.use(student.SetTimeZone);
+
+//All below routes requires user authentication
+router.use(student.Authentication);
 
 router.route('/faculties')
     .get(student.list_faculties);
@@ -44,7 +38,7 @@ router.route('/upevents')
     .get(student.list_upcoming_events);
 
 router.route('/myevents')
-    .post(student.list_student_attend_events);
+    .get(student.list_student_attend_events);
 
 router.route('/myevents/:event_time/join')
     .post(student.student_join_event);

@@ -20,11 +20,9 @@ admin.initializeApp({
     databaseURL: "https://auopenhouse-wvn.firebaseio.com"
 });
 
-exports.Authetication = function(req, res, next) {
-    console.log("ses", req.session);
-    console.log("Authetication");
+exports.Authentication = function(req, res, next) {
     if (req.session.sid) {
-        console.log(req.method, req.url);
+        console.log("Authentication Passed", req.method, req.url);
         next();
     } else {
         res.sendStatus(401);
@@ -43,7 +41,6 @@ exports.SetTimeZone = function(req, res, next) {
                     console.log(err);
                     return next("Mysql error, check your query");
                 }
-                console.log("SetTimeZone");
                 next();
             });
     });
@@ -79,8 +76,8 @@ exports.login = function(req, res, next) {
                 if (err) return next("Cannot Connect");
 
                 var query = conn.query(
-                    "INSERT INTO `heroku_8fddb363146ffaf`.`student` (`SID`, `Name`, `Image`, `Email`)" +
-                    "VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE Name = ?, Image = ?, Email = ?;", [data.sid, data.name, data.image, data.email, data.name, data.image, data.email],
+                    "INSERT INTO `heroku_8fddb363146ffaf`.`student` (`SID`, `Name`, `Image`, `Email`) " +
+                    "VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE Name = ?, Image = ?, Email = ?; ", [data.sid, data.name, data.image, data.email, data.name, data.image, data.email],
                     function(err, results, fields) {
                         if (err) {
                             console.log(err);
@@ -103,7 +100,7 @@ exports.login = function(req, res, next) {
 }
 
 exports.logout = function(req, res, next) {
-    console.log("logout");
+
     if (req.session) {
         //Delete session object
         req.session.destroy(function(err) {
@@ -111,7 +108,6 @@ exports.logout = function(req, res, next) {
                 return next(err);
             } else {
                 return res.sendStatus(204);
-                //return res.redirect('/');
             }
         });
     }
@@ -133,7 +129,7 @@ exports.list_faculties = function(req, res, next) {
                     return next("Mysql error, check your query");
                 }
 
-                res.json(results);
+                res.status(200).json(results);
             });
     });
 
@@ -158,10 +154,10 @@ exports.faculty_info = function(req, res, next) {
                 }
 
                 if (results.length < 1) {
-                    return res.send("Faculty Not found");
+                    return res.status(404).send("Faculty not found");
                 }
 
-                res.json(results);
+                res.status(200).json(results);
             });
     });
 
@@ -184,7 +180,8 @@ exports.list_majors = function(req, res, next) {
                     console.log(err);
                     return next("Mysql error, check your query");
                 }
-                res.json(results);
+
+                res.status(200).json(results);
             });
     });
 
@@ -210,10 +207,10 @@ exports.major_info = function(req, res, next) {
                 }
 
                 if (results.length < 1) {
-                    return res.send("Major Not found");
+                    return res.status(404).send("Major not found");
                 }
 
-                res.json(results);
+                res.status(200).json(results);
             });
     });
 
@@ -236,10 +233,10 @@ exports.list_upcoming_events = function(req, res, next) {
                 }
 
                 if (results.length < 1) {
-                    return res.send("Upcoming Events Not found");
+                    return res.status(404).send("Upcoming events not found");
                 }
 
-                res.json(results);
+                res.status(200).json(results);
             });
     });
 
@@ -247,16 +244,7 @@ exports.list_upcoming_events = function(req, res, next) {
 
 exports.list_student_attend_events = function(req, res, next) {
 
-    //validation
-    req.assert("sid", "UUID is required").notEmpty();
-
-    var errors = req.validationErrors();
-    if (errors) {
-        res.status(422).json(errors);
-        return;
-    }
-
-    var sid = req.body.sid;
+    var sid = req.session.sid;
 
     req.getConnection(function(err, conn) {
 
@@ -265,10 +253,10 @@ exports.list_student_attend_events = function(req, res, next) {
         var query = conn.query(
             "SELECT * " +
             "FROM heroku_8fddb363146ffaf.event_time NATURAL JOIN heroku_8fddb363146ffaf.event " +
-            "WHERE tid in ( " +
+            "WHERE tid IN ( " +
             "SELECT tid " +
             "FROM heroku_8fddb363146ffaf.student_attend_event_time " +
-            "WHERE sid = ?)", [sid],
+            "WHERE sid = ?) ", [sid],
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
@@ -276,10 +264,10 @@ exports.list_student_attend_events = function(req, res, next) {
                 }
 
                 if (results.length < 1) {
-                    return res.send("Attend Events Not found");
+                    return res.status(404).send("Events not found");
                 }
 
-                res.json(results);
+                res.status(200).json(results);
             });
     });
 
@@ -288,16 +276,8 @@ exports.list_student_attend_events = function(req, res, next) {
 exports.student_join_event = function(req, res, next) {
 
     var event_time = req.params.event_time;
-    //validation
-    req.assert("sid", "UUID is required").notEmpty();
 
-    var errors = req.validationErrors();
-    if (errors) {
-        res.status(422).json(errors);
-        return;
-    }
-
-    var sid = req.body.sid;
+    var sid = req.session.sid;
 
     req.getConnection(function(err, conn) {
 
@@ -311,15 +291,18 @@ exports.student_join_event = function(req, res, next) {
                     switch (err.code) {
                         case "ER_DUP_ENTRY":
                             console.log("duplicate entry");
+                            res.status(200).json({ "isSuccess": true, "message": "Already joined the event" });
                             break;
                         case "ER_NO_REFERENCED_ROW_2":
-                            console.log("event time not found or user not found");
+                            console.log("event time not found");
+                            res.status(404).json({ "isSuccess": false, "message": "Event not found" });
                             break;
                     }
                     console.log(err);
                     return next("Mysql error, check your query");
                 }
-                res.sendStatus(200);
+
+                res.status(200).json({ "isSuccess": true, "message": "Joined the event" });
             });
     });
 
@@ -333,13 +316,14 @@ exports.list_events = function(req, res, next) {
 
         var query = conn.query(
             "SELECT * " +
-            "FROM heroku_8fddb363146ffaf.event;",
+            "FROM heroku_8fddb363146ffaf.event; ",
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
                     return next("Mysql error, check your query");
                 }
-                res.json(results);
+
+                res.status(200).json(results);
             });
     });
 
@@ -354,9 +338,9 @@ exports.event_info = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         var query = conn.query(
-            "SELECT *" +
-            "FROM heroku_8fddb363146ffaf.event" +
-            "WHERE eid = ?;", [event_id],
+            "SELECT * " +
+            "FROM heroku_8fddb363146ffaf.event " +
+            "WHERE eid = ?; ", [event_id],
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
@@ -364,10 +348,10 @@ exports.event_info = function(req, res, next) {
                 }
 
                 if (results.length < 1) {
-                    return res.send("Event Not found");
+                    return res.status(404).send("Event not found");
                 }
 
-                res.json(results);
+                res.status(200).json(results);
             });
     });
 
