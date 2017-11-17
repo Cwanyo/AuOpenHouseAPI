@@ -1,7 +1,7 @@
 # Au Open House Api
 
 
-# List of available apis
+# List of Available APIS
 
 ## Student API
 
