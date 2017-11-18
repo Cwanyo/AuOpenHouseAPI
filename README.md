@@ -5,11 +5,7 @@
 
 ## Student API
 
-<style>
-    
-</style>
-
-<table style="width:100%">
+<table>
     <thead align="center">
         <tr>
             <th>Title</th>
@@ -25,7 +21,7 @@
             <td>PUT</td> 
             <td>/login</td>
             <td>-</td>
-            <td>idToken=[string]</td>
+            <td>idToken[string]</td>
         </tr>
         <tr>
             <td>Logout</td>
@@ -35,7 +31,7 @@
             <td>-</td>
         </tr>
         <tr>
-            <td colspan="5">-- ALL BELOW ROUTES REQUIRES USER AUTHENTICATION --</td>
+            <td colspan="5" align="center">-- ALL BELOW ROUTES REQUIRES USER AUTHENTICATION --</td>
         </tr>
         <tr>
             <td>Get list of all faculties</td>
@@ -48,21 +44,21 @@
             <td>Get faculty details</td>
             <td>GET</td> 
             <td>/faculties/:faculty_id</td>
-            <td>faculty_id=[int]</td>
+            <td>faculty_id[int]</td>
             <td>-</td>
         </tr>
         <tr>
             <td>Get list of all majors in the faculty</td>
             <td>GET</td> 
             <td>/faculties/:faculty_id/majors</td>
-            <td>faculty_id=[int]</td>
+            <td>faculty_id[int]</td>
             <td>-</td>
         </tr>
         <tr>
             <td>Get major details in the faculty</td>
             <td>GET</td> 
             <td>/faculties/:faculty_id/majors/:major_id</td>
-            <td>faculty_id=[int]<br>major_id=[int]</td>
+            <td>faculty_id[int]<br>major_id[int]</td>
             <td>-</td>
         </tr>
         <tr>
@@ -83,7 +79,7 @@
             <td>Join the event</td>
             <td>POST</td> 
             <td>/myevents/:time_id/join</td>
-            <td>time_id=[int]</td>
+            <td>time_id[int]</td>
             <td>-</td>
         </tr>
         <tr>
@@ -97,7 +93,7 @@
             <td>Get event details</td>
             <td>GET</td> 
             <td>/events/:event_id</td>
-            <td>event_id=[int]</td>
+            <td>event_id[int]</td>
             <td>-</td>
         </tr>
         <tr>
@@ -118,8 +114,8 @@
             <td>Play the game</td>
             <td>POST</td> 
             <td>/mygames/:game_id/play</td>
-            <td>game_id=[int]</td>
-            <td>points=[int]</td>
+            <td>game_id[int]</td>
+            <td>points[int]</td>
         </tr>
         <tr>
             <td>Get list of all games</td>
@@ -132,14 +128,14 @@
             <td>Get game details</td>
             <td>GET</td> 
             <td>/games/:game_id</td>
-            <td>game_id=[int]</td>
+            <td>game_id[int]</td>
             <td>-</td>
         </tr>
         <tr>
             <td>Get game questions and answers</td>
             <td>GET</td> 
             <td>/games/:game_id/questions</td>
-            <td>game_id=[int]</td>
+            <td>game_id[int]</td>
             <td>-</td>
         </tr>
     </tbody>
