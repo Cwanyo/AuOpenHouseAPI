@@ -5,7 +5,7 @@
 
 ## Student API
 
-<table style="width:100%;">
+<table>
     <thead>
         <tr>
             <th>Title</th>
