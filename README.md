@@ -5,8 +5,12 @@
 
 ## Student API
 
-<table>
-    <thead>
+<style>
+    
+</style>
+
+<table style="width:100%">
+    <thead align="center">
         <tr>
             <th>Title</th>
             <th>Method</th> 
