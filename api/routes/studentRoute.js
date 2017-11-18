@@ -38,9 +38,9 @@ router.route("/upevents")
     .get(student.list_upcoming_events);
 
 router.route("/myevents")
-    .get(student.list_student_attend_events);
+    .get(student.list_student_attended_events);
 
-router.route("/myevents/:event_time/join")
+router.route("/myevents/:time_id/join")
     .post(student.student_join_event);
 
 router.route("/events")
@@ -49,10 +49,25 @@ router.route("/events")
 router.route("/events/:event_id")
     .get(student.event_info);
 
+//TODO - don't display the game that already played
 router.route("/upgames")
     .get(student.list_upcoming_games);
 
 router.route("/mygames")
-    .get(student.list_student_play_games);
+    .get(student.list_student_played_games);
+
+//TODO - have to find better ways to check the answer instead of sending the points that calc in client side
+//TODO - sum the game points and put it in student entity 
+router.route("/mygames/:game_id/play")
+    .post(student.student_play_game);
+
+router.route("/games")
+    .get(student.list_games);
+
+router.route("/games/:game_id")
+    .get(student.game_info);
+
+router.route("/games/:game_id/questions")
+    .get(student.game_questions);
 
 module.exports = router;

@@ -33,6 +33,5 @@ app.use("/api/student", require("./api/routes/studentRoute"));
 
 //Start Server
 var server = app.listen(port, function() {
-    console.log("TEST!");
     console.log("AuOpenHouse RESTful API server started on port :: %s", server.address().port);
 });

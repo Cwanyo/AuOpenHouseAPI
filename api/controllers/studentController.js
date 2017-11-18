@@ -242,7 +242,7 @@ exports.list_upcoming_events = function(req, res, next) {
 
 }
 
-exports.list_student_attend_events = function(req, res, next) {
+exports.list_student_attended_events = function(req, res, next) {
 
     var sid = req.session.sid;
 
@@ -275,7 +275,7 @@ exports.list_student_attend_events = function(req, res, next) {
 
 exports.student_join_event = function(req, res, next) {
 
-    var event_time = req.params.event_time;
+    var time_id = req.params.time_id;
 
     var sid = req.session.sid;
 
@@ -285,7 +285,7 @@ exports.student_join_event = function(req, res, next) {
 
         var query = conn.query(
             "INSERT INTO `heroku_8fddb363146ffaf`.`student_attend_event_time` (`SID`, `TID`) " +
-            "VALUES (?, ?); ", [sid, event_time],
+            "VALUES (?, ?); ", [sid, time_id],
             function(err, results, fields) {
                 if (err) {
                     switch (err.code) {
@@ -383,7 +383,7 @@ exports.list_upcoming_games = function(req, res, next) {
 
 }
 
-exports.list_student_play_games = function(req, res, next) {
+exports.list_student_played_games = function(req, res, next) {
 
     var sid = req.session.sid;
 
@@ -393,11 +393,8 @@ exports.list_student_play_games = function(req, res, next) {
 
         var query = conn.query(
             "SELECT * " +
-            "FROM heroku_8fddb363146ffaf.game " +
-            "WHERE gid IN ( " +
-            "SELECT gid " +
-            "FROM heroku_8fddb363146ffaf.student_play_game " +
-            "WHERE sid = ?) ", [sid],
+            "FROM heroku_8fddb363146ffaf.game NATURAL JOIN heroku_8fddb363146ffaf.student_play_game " +
+            "WHERE sid = ?; ", [sid],
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
@@ -406,6 +403,128 @@ exports.list_student_play_games = function(req, res, next) {
 
                 if (results.length < 1) {
                     return res.status(404).send("Games not found");
+                }
+
+                res.status(200).json(results);
+            });
+    });
+
+}
+
+exports.student_play_game = function(req, res, next) {
+
+    //validation
+    req.assert("points", "points is required").notEmpty();
+
+    var errors = req.validationErrors();
+    if (errors) {
+        res.status(422).json(errors);
+        return;
+    }
+
+    var game_id = req.params.game_id;
+    var points = req.body.points;
+
+    var sid = req.session.sid;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query(
+            "INSERT INTO `heroku_8fddb363146ffaf`.`student_play_game` (`SID`, `GID`, `Point`) " +
+            "VALUES (?, ?, ?); ", [sid, game_id, points],
+            function(err, results, fields) {
+                if (err) {
+                    switch (err.code) {
+                        case "ER_DUP_ENTRY":
+                            console.log("duplicate entry");
+                            res.status(200).json({ "isSuccess": true, "message": "Already played the game" });
+                            break;
+                        case "ER_NO_REFERENCED_ROW_2":
+                            console.log("game not found");
+                            res.status(404).json({ "isSuccess": false, "message": "Game not found" });
+                            break;
+                    }
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
+
+                res.status(200).json({ "isSuccess": true, "message": "Played the game" });
+            });
+    });
+
+}
+
+exports.list_games = function(req, res, next) {
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query(
+            "SELECT * " +
+            "FROM heroku_8fddb363146ffaf.game; ",
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
+
+                res.status(200).json(results);
+            });
+    });
+
+}
+
+exports.game_info = function(req, res, next) {
+
+    var game_id = req.params.game_id;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query(
+            "SELECT * " +
+            "FROM heroku_8fddb363146ffaf.game " +
+            "WHERE gid = ?; ", [game_id],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
+
+                if (results.length < 1) {
+                    return res.status(404).send("Game not found");
+                }
+
+                res.status(200).json(results);
+            });
+    });
+
+}
+
+exports.game_questions = function(req, res, next) {
+
+    var game_id = req.params.game_id;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query(
+            "SELECT * " +
+            "FROM heroku_8fddb363146ffaf.game_question NATURAL JOIN heroku_8fddb363146ffaf.answer_choice " +
+            "WHERE gid = ?; ", [game_id],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
+
+                if (results.length < 1) {
+                    return res.status(404).send("Game question not found");
                 }
 
                 res.status(200).json(results);
