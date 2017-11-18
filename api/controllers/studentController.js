@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /*Initialize Firebase*/
 var admin = require("firebase-admin"),
@@ -6,7 +6,7 @@ var admin = require("firebase-admin"),
         "type": process.env.FIREBASE_TYPE,
         "project_id": process.env.FIREBASE_PROJECT_ID,
         "private_key_id": process.env.FIREBASE_PRIVATE_KEY_ID,
-        "private_key": process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        "private_key": process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
         "client_email": process.env.FIREBASE_CLIENT_EMAIL,
         "client_id": process.env.FIREBASE_CLIENT_ID,
         "auth_uri": process.env.FIREBASE_AUTH_URI,
@@ -349,6 +349,63 @@ exports.event_info = function(req, res, next) {
 
                 if (results.length < 1) {
                     return res.status(404).send("Event not found");
+                }
+
+                res.status(200).json(results);
+            });
+    });
+
+}
+
+exports.list_upcoming_games = function(req, res, next) {
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query(
+            "SELECT * " +
+            "FROM heroku_8fddb363146ffaf.game " +
+            "WHERE current_timestamp() between Time_Start and Time_End; ",
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
+
+                if (results.length < 1) {
+                    return res.status(404).send("Upcoming games not found");
+                }
+
+                res.status(200).json(results);
+            });
+    });
+
+}
+
+exports.list_student_play_games = function(req, res, next) {
+
+    var sid = req.session.sid;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query(
+            "SELECT * " +
+            "FROM heroku_8fddb363146ffaf.game " +
+            "WHERE gid IN ( " +
+            "SELECT gid " +
+            "FROM heroku_8fddb363146ffaf.student_play_game " +
+            "WHERE sid = ?) ", [sid],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
+
+                if (results.length < 1) {
+                    return res.status(404).send("Games not found");
                 }
 
                 res.status(200).json(results);

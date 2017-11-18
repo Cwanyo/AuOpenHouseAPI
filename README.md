@@ -19,6 +19,7 @@
 | Join the event | POST | /myevents/:event_time/join | event_time=[int] | - |
 | Get list of all events | GET | /events | - | - |
 | Get event details | GET | /events/:event_id | event_id=[int] | - |
+| Get list of upcoming games<br>(Before time start and end time) | GET | /upgames | - | - |
 
 
 
