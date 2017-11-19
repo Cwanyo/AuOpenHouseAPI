@@ -1,4 +1,5 @@
 var express = require("express"),
+    cors = require('cors'),
     path = require("path"),
     bodyParser = require("body-parser"),
     expressValidator = require("express-validator"),
@@ -10,6 +11,7 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 app.use(express.static(path.join(__dirname, "public")));
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(expressValidator());

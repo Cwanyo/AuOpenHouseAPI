@@ -31,7 +31,7 @@ exports.SetTimeZone = function(req, res, next) {
 }
 
 exports.welcome_page = function(req, res, next) {
-    res.send("Welcome to AuOpenHouse-Authority Api");
+    res.send("Welcome to AuOpenHouse-Authority APIS");
 }
 
 exports.login = function(req, res, next) {
