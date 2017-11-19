@@ -30,6 +30,8 @@ app.use(session({
 
 //Student Routes
 app.use("/api/student", require("./api/routes/studentRoute"));
+//Admin Routes
+app.use("/api/authority", require("./api/routes/authorityRoute"));
 
 //Start Server
 var server = app.listen(port, function() {

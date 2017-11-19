@@ -3,7 +3,11 @@
 
 # List of Available APIS
 
+For more information, check the [documentation](https://documenter.getpostman.com/view/3045264/collection/7E8hveG)
+
 ## Student API
+
+URL : https://auopenhouse.herokuapp.com/api/student/
 
 | Title | Method | URL | URL Params | Data Params |
 |-------|:------:|:----|:----------:|:-----------:|
@@ -26,4 +30,12 @@
 | Get game details | GET | /games/:game_id | game_id=[int] | - |
 | Get game questions and answer | GET | /games/:game_id/questions | game_id=[int] | - |
 
-usage example : https://documenter.getpostman.com/view/3045264/collection/7E8hveG
+## Authority API
+
+URL : https://auopenhouse.herokuapp.com/api/authority/
+
+| Title | Method | URL | URL Params | Data Params |
+|-------|:------:|:----|:----------:|:-----------:|
+| Login | PUT | /login | - | idToken=[string] |
+| Logout | GET | /logout | - | - |
+| **ALL BELOW ROUTES REQUIRES USER AUTHENTICATION** |
