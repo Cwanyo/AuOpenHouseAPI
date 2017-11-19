@@ -76,7 +76,7 @@ exports.login = function(req, res, next) {
                                     req.session.regenerate(function() {
                                         req.session.aid = data.aid;
                                         req.session.role = results[0].Role;
-                                        res.status(200).json({ "isSuccess": true, "message": "Authentication Passed" });
+                                        res.status(200).json({ "isSuccess": true, "message": "Authentication Passed", "role": results[0].Role });
                                     });
                                     break;
                                 case 0:
