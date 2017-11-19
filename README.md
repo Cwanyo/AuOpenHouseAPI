@@ -1,7 +1,7 @@
-# Au Open House Api
+# Au Open House API
 
 
-# List of Available APIS
+# List of Available API
 
 For more information, check the [documentation](https://documenter.getpostman.com/view/3045264/collection/7E8hveG)
 
