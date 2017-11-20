@@ -20,10 +20,13 @@ router.route("/logout")
 //All below routes requires to set MYSQL time zone offset to Thailand (+07:00)
 router.use(authority.SetTimeZone);
 
-//All below routes requires user authentication
-router.use(authority.Authentication);
+//All below routes requires staff authentication
+router.use(authority.AuthenticationStaff);
 
 router.route("/events")
     .get(authority.list_events);
+
+//All below routes requires admin authentication
+router.use(authority.AuthenticationAdmin);
 
 module.exports = router;

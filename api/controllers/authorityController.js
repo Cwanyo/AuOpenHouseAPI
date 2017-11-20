@@ -3,9 +3,18 @@
 /*Firebase*/
 var firebase = require("../firebase");
 
-exports.Authentication = function(req, res, next) {
+exports.AuthenticationStaff = function(req, res, next) {
     if (req.session.aid) {
-        console.log("Authentication Passed", req.method, req.url);
+        console.log("Authentication staff Passed", req.method, req.url);
+        next();
+    } else {
+        res.sendStatus(401);
+    }
+}
+
+exports.AuthenticationAdmin = function(req, res, next) {
+    if (req.session.aid && req.session.role == "admin") {
+        console.log("Authentication admin Passed", req.method, req.url);
         next();
     } else {
         res.sendStatus(401);
