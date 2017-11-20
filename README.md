@@ -39,3 +39,4 @@ URL : https://auopenhouse.herokuapp.com/api/authority/
 | Login | PUT | /login | - | idToken=[string] |
 | Logout | GET | /logout | - | - |
 | **ALL BELOW ROUTES REQUIRES USER AUTHENTICATION** |
+| Get list of all events | GET | /events | - | - |
