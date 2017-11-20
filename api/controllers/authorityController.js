@@ -135,7 +135,8 @@ exports.list_events = function(req, res, next) {
             "SELECT EID, Name, Info, Image, State, Location_Latitude, Location_Longitude, e.FID, e.MID, Faculty_Name, Major_Name, Icon " +
             "FROM heroku_8fddb363146ffaf.event AS e LEFT JOIN ( " +
             "SELECT f.fid, m.mid, f.name AS Faculty_Name, m.name AS Major_Name, Icon " +
-            "FROM heroku_8fddb363146ffaf.major AS m INNER JOIN heroku_8fddb363146ffaf.faculty AS f ON m.fid = f.fid) AS fm ON e.mid = fm.mid; ",
+            "FROM heroku_8fddb363146ffaf.major AS m INNER JOIN heroku_8fddb363146ffaf.faculty AS f ON m.fid = f.fid) AS fm ON e.mid = fm.mid " +
+            "ORDER BY e.FID ASC; ",
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
