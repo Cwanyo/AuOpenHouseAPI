@@ -29,6 +29,12 @@ router.route("/events")
 router.route("/facultiesAndMajors")
     .get(authority.list_faculties_and_majors);
 
+router.route("/faculties")
+    .get(authority.list_faculties);
+
+router.route("/faculties/:faculty_id/majors")
+    .get(authority.list_majors);
+
 //All below routes requires admin authentication
 router.use(authority.AuthenticationAdmin);
 

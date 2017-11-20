@@ -169,3 +169,48 @@ exports.list_faculties_and_majors = function(req, res, next) {
     });
 
 }
+
+exports.list_faculties = function(req, res, next) {
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query(
+            "SELECT * " +
+            "FROM heroku_8fddb363146ffaf.faculty; ",
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
+
+                res.status(200).json(results);
+            });
+    });
+
+}
+
+exports.list_majors = function(req, res, next) {
+
+    var faculty_id = req.params.faculty_id;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query(
+            "SELECT * " +
+            "FROM heroku_8fddb363146ffaf.major " +
+            "WHERE fid = ?; ", [faculty_id],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
+
+                res.status(200).json(results);
+            });
+    });
+
+}
