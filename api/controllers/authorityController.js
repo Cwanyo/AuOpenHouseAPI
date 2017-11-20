@@ -148,3 +148,24 @@ exports.list_events = function(req, res, next) {
     });
 
 }
+
+exports.list_faculties_and_majors = function(req, res, next) {
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query(
+            "SELECT f.fid, m.mid, f.name AS Faculty_Name, m.name AS Major_Name " +
+            "FROM heroku_8fddb363146ffaf.major AS m INNER JOIN heroku_8fddb363146ffaf.faculty AS f ON m.fid = f.fid; ",
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
+
+                res.status(200).json(results);
+            });
+    });
+
+}

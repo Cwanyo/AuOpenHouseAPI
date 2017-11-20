@@ -26,6 +26,9 @@ router.use(authority.AuthenticationStaff);
 router.route("/events")
     .get(authority.list_events);
 
+router.route("/facultiesAndMajors")
+    .get(authority.list_faculties_and_majors);
+
 //All below routes requires admin authentication
 router.use(authority.AuthenticationAdmin);
 
