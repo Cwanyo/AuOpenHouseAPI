@@ -31,7 +31,7 @@ exports.SetTimeZone = function(req, res, next) {
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
-                    return next("Mysql error, check your query");
+                    return next("Mysql error, check your query at SetTimeZone");
                 }
                 next();
             });
@@ -74,7 +74,7 @@ exports.login = function(req, res, next) {
                     function(err, results, fields) {
                         if (err) {
                             console.log(err);
-                            return next("Mysql error, check your query");
+                            return next("Mysql error, check your query at login");
                         }
 
                         if (results.length == 1) {
@@ -137,7 +137,7 @@ exports.list_faculties = function(req, res, next) {
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
-                    return next("Mysql error, check your query");
+                    return next("Mysql error, check your query at list_faculties");
                 }
 
                 res.status(200).json(results);
@@ -161,7 +161,7 @@ exports.list_majors = function(req, res, next) {
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
-                    return next("Mysql error, check your query");
+                    return next("Mysql error, check your query at list_majors");
                 }
 
                 res.status(200).json(results);
@@ -177,40 +177,19 @@ exports.list_events = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         var query = conn.query(
-            "SELECT EID, Name, Info, Image, State, Location_Latitude, Location_Longitude, e.FID, e.MID, Faculty_Name, Major_Name, Icon " +
+            "SELECT EID, Name, Info, Image, State, Location_Latitude, Location_Longitude, ef.FID, ef.MID, Faculty_Name, Major_Name, Icon " +
+            "FROM (SELECT EID, Name, Info, Image, State, Location_Latitude, Location_Longitude, e.FID, e.MID, Faculty_Name, Icon " +
             "FROM heroku_8fddb363146ffaf.event AS e LEFT JOIN ( " +
-            "SELECT f.fid, m.mid, f.name AS Faculty_Name, m.name AS Major_Name, Icon " +
-            "FROM heroku_8fddb363146ffaf.major AS m INNER JOIN heroku_8fddb363146ffaf.faculty AS f ON m.fid = f.fid) AS fm ON e.mid = fm.mid " +
+            "SELECT FID, Name AS Faculty_Name, Icon " +
+            "FROM heroku_8fddb363146ffaf.faculty) AS f ON e.fid = f.fid) AS ef LEFT JOIN ( " +
+            "SELECT MID, Name AS Major_Name " +
+            "FROM heroku_8fddb363146ffaf.major) AS m ON ef.mid = m.mid " +
             "WHERE state = 1 " +
-            "ORDER BY e.FID ASC; ",
+            "ORDER BY ef.FID ASC; ",
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
-                    return next("Mysql error, check your query");
-                }
-
-                res.status(200).json(results);
-            });
-    });
-
-}
-
-exports.event_time = function(req, res, next) {
-
-    var event_id = req.params.event_id;
-
-    req.getConnection(function(err, conn) {
-
-        if (err) return next("Cannot Connect");
-
-        var query = conn.query(
-            "SELECT * " +
-            "FROM heroku_8fddb363146ffaf.event_time " +
-            "WHERE eid = ? AND state = 1; ", [event_id],
-            function(err, results, fields) {
-                if (err) {
-                    console.log(err);
-                    return next("Mysql error, check your query");
+                    return next("Mysql error, check your query at list_events");
                 }
 
                 res.status(200).json(results);
@@ -235,7 +214,7 @@ exports.add_events = function(req, res, next) {
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
-                    return next("Mysql error, check your query at add event");
+                    return next("Mysql error, check your query at add_events(1)");
                 }
 
                 if (results.insertId) {
@@ -247,8 +226,7 @@ exports.add_events = function(req, res, next) {
                             function(err, results, fields) {
                                 if (err) {
                                     console.log(err);
-                                    //TODO - remove event and ask user to add again
-                                    return next("Mysql error, check your query at add event time");
+                                    return next("Mysql error, check your query at add_events(2)");
                                 }
                             });
                     });
@@ -259,7 +237,7 @@ exports.add_events = function(req, res, next) {
                         function(err, results, fields) {
                             if (err) {
                                 console.log(err);
-                                return next("Mysql error, check your query at add event log");
+                                return next("Mysql error, check your query at add_events(3)");
                             }
                         });
 
@@ -291,7 +269,7 @@ exports.edit_events = function(req, res, next) {
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
-                    return next("Mysql error, check your query at add event");
+                    return next("Mysql error, check your query at edit_events(1)");
                 }
 
                 data.Event_Time.forEach(t => {
@@ -304,8 +282,7 @@ exports.edit_events = function(req, res, next) {
                             function(err, results, fields) {
                                 if (err) {
                                     console.log(err);
-                                    //TODO - remove event and ask user to add again
-                                    return next("Mysql error, check your query at update event time");
+                                    return next("Mysql error, check your query at edit_events(2)");
                                 }
                             });
                     } else {
@@ -316,8 +293,7 @@ exports.edit_events = function(req, res, next) {
                             function(err, results, fields) {
                                 if (err) {
                                     console.log(err);
-                                    //TODO - remove event and ask user to add again
-                                    return next("Mysql error, check your query at add event time");
+                                    return next("Mysql error, check your query at edit_events(3)");
                                 }
                             });
                     }
@@ -329,7 +305,7 @@ exports.edit_events = function(req, res, next) {
                     function(err, results, fields) {
                         if (err) {
                             console.log(err);
-                            return next("Mysql error, check your query at add event log");
+                            return next("Mysql error, check your query at edit_events(4)");
                         }
                     });
 
@@ -358,7 +334,7 @@ exports.disable_event_time = function(req, res, next) {
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
-                    return next("Mysql error, check your query at disable_events");
+                    return next("Mysql error, check your query at disable_event_time(1)");
                 }
 
                 if (results.changedRows) {
@@ -369,7 +345,7 @@ exports.disable_event_time = function(req, res, next) {
                         function(err, results, fields) {
                             if (err) {
                                 console.log(err);
-                                return next("Mysql error, check your query at disable_events log");
+                                return next("Mysql error, check your query at disable_event_time(2)");
                             }
                         });
 
@@ -379,6 +355,30 @@ exports.disable_event_time = function(req, res, next) {
                     res.status(400).json({ "isSuccess": false, "message": "Cannot delete event time" });
                 }
 
+            });
+    });
+
+}
+
+exports.event_time = function(req, res, next) {
+
+    var event_id = req.params.event_id;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query(
+            "SELECT * " +
+            "FROM heroku_8fddb363146ffaf.event_time " +
+            "WHERE eid = ? AND state = 1; ", [event_id],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query at event_time");
+                }
+
+                res.status(200).json(results);
             });
     });
 

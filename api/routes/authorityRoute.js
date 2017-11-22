@@ -43,9 +43,6 @@ router.route("/events/:event_id/times")
 router.route("/events/:event_id/times/:time_id")
     .delete(authority.disable_event_time);
 
-
-
-
 //All below routes requires admin authentication
 router.use(authority.AuthenticationAdmin);
 
