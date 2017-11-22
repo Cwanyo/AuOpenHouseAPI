@@ -24,6 +24,7 @@ var connection = require("express-myconnection"),
 app.use(connection(mysql, CLEARDB_DATABASE_URL, "pool"));
 
 app.set("trust proxy", 1);
+//TODO - add session expiration
 app.use(session({
     secret: "keyboard cat",
     resave: false,

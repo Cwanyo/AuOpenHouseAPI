@@ -23,17 +23,18 @@ router.use(authority.SetTimeZone);
 //All below routes requires staff authentication
 router.use(authority.AuthenticationStaff);
 
-router.route("/events")
-    .get(authority.list_events);
-
-router.route("/facultiesAndMajors")
-    .get(authority.list_faculties_and_majors);
-
 router.route("/faculties")
     .get(authority.list_faculties);
 
 router.route("/faculties/:faculty_id/majors")
     .get(authority.list_majors);
+
+router.route("/events")
+    .get(authority.list_events)
+    .post(authority.add_events);
+
+router.route("/events/:event_id")
+    .delete(authority.disable_events);
 
 //All below routes requires admin authentication
 router.use(authority.AuthenticationAdmin);

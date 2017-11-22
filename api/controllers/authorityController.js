@@ -1,5 +1,5 @@
 "use strict";
-
+//TODO - replace return error 
 /*Firebase*/
 var firebase = require("../firebase");
 
@@ -125,51 +125,6 @@ exports.logout = function(req, res, next) {
 
 }
 
-exports.list_events = function(req, res, next) {
-
-    req.getConnection(function(err, conn) {
-
-        if (err) return next("Cannot Connect");
-
-        var query = conn.query(
-            "SELECT EID, Name, Info, Image, State, Location_Latitude, Location_Longitude, e.FID, e.MID, Faculty_Name, Major_Name, Icon " +
-            "FROM heroku_8fddb363146ffaf.event AS e LEFT JOIN ( " +
-            "SELECT f.fid, m.mid, f.name AS Faculty_Name, m.name AS Major_Name, Icon " +
-            "FROM heroku_8fddb363146ffaf.major AS m INNER JOIN heroku_8fddb363146ffaf.faculty AS f ON m.fid = f.fid) AS fm ON e.mid = fm.mid " +
-            "ORDER BY e.FID ASC; ",
-            function(err, results, fields) {
-                if (err) {
-                    console.log(err);
-                    return next("Mysql error, check your query");
-                }
-
-                res.status(200).json(results);
-            });
-    });
-
-}
-
-exports.list_faculties_and_majors = function(req, res, next) {
-
-    req.getConnection(function(err, conn) {
-
-        if (err) return next("Cannot Connect");
-
-        var query = conn.query(
-            "SELECT f.fid, m.mid, f.name AS Faculty_Name, m.name AS Major_Name " +
-            "FROM heroku_8fddb363146ffaf.major AS m INNER JOIN heroku_8fddb363146ffaf.faculty AS f ON m.fid = f.fid; ",
-            function(err, results, fields) {
-                if (err) {
-                    console.log(err);
-                    return next("Mysql error, check your query");
-                }
-
-                res.status(200).json(results);
-            });
-    });
-
-}
-
 exports.list_faculties = function(req, res, next) {
 
     req.getConnection(function(err, conn) {
@@ -210,6 +165,129 @@ exports.list_majors = function(req, res, next) {
                 }
 
                 res.status(200).json(results);
+            });
+    });
+
+}
+
+exports.list_events = function(req, res, next) {
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query(
+            "SELECT EID, Name, Info, Image, State, Location_Latitude, Location_Longitude, e.FID, e.MID, Faculty_Name, Major_Name, Icon " +
+            "FROM heroku_8fddb363146ffaf.event AS e LEFT JOIN ( " +
+            "SELECT f.fid, m.mid, f.name AS Faculty_Name, m.name AS Major_Name, Icon " +
+            "FROM heroku_8fddb363146ffaf.major AS m INNER JOIN heroku_8fddb363146ffaf.faculty AS f ON m.fid = f.fid) AS fm ON e.mid = fm.mid " +
+            "WHERE state = 1 " +
+            "ORDER BY e.FID ASC; ",
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
+
+                res.status(200).json(results);
+            });
+    });
+
+}
+
+exports.add_events = function(req, res, next) {
+
+    var aid = req.session.aid;
+
+    var data = req.body.event;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query(
+            "INSERT INTO `heroku_8fddb363146ffaf`.`event` (`Name`, `Info`, `Image`, `Location_Latitude`, `Location_Longitude`, `MID`, `FID`) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?); ", [data.Name, data.Info, data.Image, data.Location_Latitude, data.Location_Longitude, data.MID, data.FID],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query at add event");
+                }
+
+                if (results.insertId) {
+
+                    data.Event_Time.forEach(t => {
+                        conn.query(
+                            "INSERT INTO `heroku_8fddb363146ffaf`.`event_time` (`EID`, `Time_Start`, `Time_End`) " +
+                            "VALUES (?, ?, ?); ", [results.insertId, t.Time_Start, t.Time_End],
+                            function(err, results, fields) {
+                                if (err) {
+                                    console.log(err);
+                                    //TODO - remove event and ask user to add again
+                                    return next("Mysql error, check your query at add event time");
+                                }
+                            });
+                    });
+
+                    conn.query(
+                        "INSERT INTO `heroku_8fddb363146ffaf`.`event_log` (`EID`, `AID`, `Log` ) " +
+                        "VALUES (?, ?, ?); ", [results.insertId, aid, "created"],
+                        function(err, results, fields) {
+                            if (err) {
+                                console.log(err);
+                                return next("Mysql error, check your query at add event log");
+                            }
+                        });
+
+                    res.status(200).json({ "isSuccess": true, "message": "Event added" });
+
+                } else {
+                    res.status(400).json({ "isSuccess": false, "message": "Cannot add event" });
+                }
+
+            });
+    });
+
+}
+
+exports.disable_events = function(req, res, next) {
+
+    var aid = req.session.aid;
+
+    var event_id = req.params.event_id;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query(
+            "UPDATE `heroku_8fddb363146ffaf`.`event`  " +
+            "SET `State`='0' " +
+            "WHERE `EID`= ?; ", [event_id],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query at disable_events");
+                }
+
+                if (results.changedRows) {
+
+                    conn.query(
+                        "INSERT INTO `heroku_8fddb363146ffaf`.`event_log` (`EID`, `AID`, `Log` ) " +
+                        "VALUES (?, ?, ?) ", [event_id, aid, "deleted"],
+                        function(err, results, fields) {
+                            if (err) {
+                                console.log(err);
+                                return next("Mysql error, check your query at disable_events log");
+                            }
+                        });
+
+                    res.status(200).json({ "isSuccess": true, "message": "Event deleted" });
+
+                } else {
+                    res.status(400).json({ "isSuccess": false, "message": "Cannot delete event" });
+                }
+
             });
     });
 
