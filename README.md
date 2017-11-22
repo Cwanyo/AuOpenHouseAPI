@@ -42,6 +42,8 @@ URL : https://auopenhouse.herokuapp.com/api/authority/
 | Get list of all faculties | GET | /faculties | - | - |
 | Get list of all majors in the faculty | GET | /faculties/:faculty_id/majors | faculty_id=[int] | - |
 | Get list of all events | GET | /events | - | - |
-| Get event times | GET | /events/:event_id/times | - | - |
 | Add new event | POST | /events | - | event=[json] |
+| Edit event | PATCH | /events | - | event=[json] |
 | Delete event | DELETE | /events/:event_id | event_id=[int] | - |
+| Get event times | GET | /events/:event_id/times | - | - |
+| Delete event times | DELETE | /events/:event_id/times/:time_id | time_id=[int] | - |

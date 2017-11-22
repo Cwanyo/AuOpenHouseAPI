@@ -206,7 +206,7 @@ exports.event_time = function(req, res, next) {
         var query = conn.query(
             "SELECT * " +
             "FROM heroku_8fddb363146ffaf.event_time " +
-            "WHERE eid = ?; ", [event_id],
+            "WHERE eid = ? AND state = 1; ", [event_id],
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
@@ -267,6 +267,116 @@ exports.add_events = function(req, res, next) {
 
                 } else {
                     res.status(400).json({ "isSuccess": false, "message": "Cannot add event" });
+                }
+
+            });
+    });
+
+}
+
+exports.edit_events = function(req, res, next) {
+
+    var aid = req.session.aid;
+
+    var data = req.body.event;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query(
+            "UPDATE `heroku_8fddb363146ffaf`.`event` " +
+            "SET `Name`= ?, `Info`= ?, `Image`= ?, `State`= ?, `Location_Latitude`= ?, `Location_Longitude`= ?, `MID`= ?, `FID`= ? " +
+            "WHERE `EID`= ?;", [data.Name, data.Info, data.Image, data.State, data.Location_Latitude, data.Location_Longitude, data.MID, data.FID, data.EID],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query at add event");
+                }
+
+                data.Event_Time.forEach(t => {
+                    if (t.TID) {
+                        //Edit time
+                        conn.query(
+                            "UPDATE `heroku_8fddb363146ffaf`.`event_time` " +
+                            "SET `Time_Start`= ?, `Time_End`= ? " +
+                            "WHERE `TID` = ?; ", [t.Time_Start, t.Time_End, t.TID],
+                            function(err, results, fields) {
+                                if (err) {
+                                    console.log(err);
+                                    //TODO - remove event and ask user to add again
+                                    return next("Mysql error, check your query at update event time");
+                                }
+                            });
+                    } else {
+                        //Add new time
+                        conn.query(
+                            "INSERT INTO `heroku_8fddb363146ffaf`.`event_time` (`EID`, `Time_Start`, `Time_End`) " +
+                            "VALUES (?, ?, ?); ", [data.EID, t.Time_Start, t.Time_End],
+                            function(err, results, fields) {
+                                if (err) {
+                                    console.log(err);
+                                    //TODO - remove event and ask user to add again
+                                    return next("Mysql error, check your query at add event time");
+                                }
+                            });
+                    }
+                });
+
+                conn.query(
+                    "INSERT INTO `heroku_8fddb363146ffaf`.`event_log` (`EID`, `AID`, `Log` ) " +
+                    "VALUES (?, ?, ?); ", [data.EID, aid, "edited"],
+                    function(err, results, fields) {
+                        if (err) {
+                            console.log(err);
+                            return next("Mysql error, check your query at add event log");
+                        }
+                    });
+
+                res.status(200).json({ "isSuccess": true, "message": "Event edited" });
+
+            });
+    });
+
+}
+
+exports.disable_event_time = function(req, res, next) {
+
+    var aid = req.session.aid;
+
+    var event_id = req.params.event_id;
+    var time_id = req.params.time_id;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query(
+            "UPDATE `heroku_8fddb363146ffaf`.`event_time`  " +
+            "SET `State`='0' " +
+            "WHERE `EID`= ? AND `TID`= ?; ", [event_id, time_id],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query at disable_events");
+                }
+
+                if (results.changedRows) {
+
+                    conn.query(
+                        "INSERT INTO `heroku_8fddb363146ffaf`.`event_log` (`EID`, `AID`, `Log` ) " +
+                        "VALUES (?, ?, ?) ", [event_id, aid, "deleted TID: " + time_id],
+                        function(err, results, fields) {
+                            if (err) {
+                                console.log(err);
+                                return next("Mysql error, check your query at disable_events log");
+                            }
+                        });
+
+                    res.status(200).json({ "isSuccess": true, "message": "Event time deleted" });
+
+                } else {
+                    res.status(400).json({ "isSuccess": false, "message": "Cannot delete event time" });
                 }
 
             });

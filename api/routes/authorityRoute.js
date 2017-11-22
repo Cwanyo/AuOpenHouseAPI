@@ -31,13 +31,19 @@ router.route("/faculties/:faculty_id/majors")
 
 router.route("/events")
     .get(authority.list_events)
-    .post(authority.add_events);
+    .post(authority.add_events)
+    .patch(authority.edit_events);
+
+router.route("/events/:event_id")
+    .delete(authority.disable_events);
 
 router.route("/events/:event_id/times")
     .get(authority.event_time);
 
-router.route("/events/:event_id")
-    .delete(authority.disable_events);
+router.route("/events/:event_id/times/:time_id")
+    .delete(authority.disable_event_time);
+
+
 
 
 //All below routes requires admin authentication
