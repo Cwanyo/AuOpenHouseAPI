@@ -33,8 +33,12 @@ router.route("/events")
     .get(authority.list_events)
     .post(authority.add_events);
 
+router.route("/events/:event_id/times")
+    .get(authority.event_time);
+
 router.route("/events/:event_id")
     .delete(authority.disable_events);
+
 
 //All below routes requires admin authentication
 router.use(authority.AuthenticationAdmin);

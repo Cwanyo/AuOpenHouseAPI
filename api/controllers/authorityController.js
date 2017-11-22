@@ -195,6 +195,30 @@ exports.list_events = function(req, res, next) {
 
 }
 
+exports.event_time = function(req, res, next) {
+
+    var event_id = req.params.event_id;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        var query = conn.query(
+            "SELECT * " +
+            "FROM heroku_8fddb363146ffaf.event_time " +
+            "WHERE eid = ?; ", [event_id],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
+
+                res.status(200).json(results);
+            });
+    });
+
+}
+
 exports.add_events = function(req, res, next) {
 
     var aid = req.session.aid;
