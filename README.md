@@ -38,9 +38,9 @@ URL : https://auopenhouse.herokuapp.com/api/authority/
 |-------|:------:|:----|:----------:|:-----------:|
 | Login | PUT | /login | - | idToken=[string] |
 | Logout | GET | /logout | - | - |
-| **ALL BELOW ROUTES REQUIRES USER AUTHENTICATION** |
 | Get list of all faculties | GET | /faculties | - | - |
 | Get list of all majors in the faculty | GET | /faculties/:faculty_id/majors | faculty_id=[int] | - |
+| **ALL BELOW ROUTES REQUIRES USER AUTHENTICATION** |
 | Get list of all events | GET | /events | - | - |
 | Add new event | POST | /events | - | event=[json] |
 | Edit event | PATCH | /events | - | event=[json] |

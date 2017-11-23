@@ -17,9 +17,6 @@ router.route("/login")
 router.route("/logout")
     .get(authority.logout);
 
-//All below routes requires to set MYSQL time zone offset to Thailand (+07:00)
-router.use(authority.SetTimeZone);
-
 //All below routes requires staff authentication
 router.use(authority.AuthenticationStaff);
 
@@ -28,6 +25,9 @@ router.route("/faculties")
 
 router.route("/faculties/:faculty_id/majors")
     .get(authority.list_majors);
+
+//All below routes requires to set MYSQL time zone offset to Thailand (+07:00)
+router.use(authority.SetTimeZone);
 
 router.route("/events")
     .get(authority.list_events)
