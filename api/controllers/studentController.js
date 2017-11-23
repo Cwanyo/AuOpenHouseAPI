@@ -18,7 +18,7 @@ exports.SetTimeZone = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query("SET SESSION time_zone = '+7:00';",
+        conn.query("SET SESSION time_zone = '+7:00';",
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
@@ -58,9 +58,10 @@ exports.login = function(req, res, next) {
 
                 if (err) return next("Cannot Connect");
 
-                var query = conn.query(
+                conn.query(
                     "INSERT INTO `heroku_8fddb363146ffaf`.`student` (`SID`, `Name`, `Image`, `Email`) " +
-                    "VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE Name = ?, Image = ?, Email = ?; ", [data.sid, data.name, data.image, data.email, data.name, data.image, data.email],
+                    "VALUES (?, ?, ?, ?) " +
+                    "ON DUPLICATE KEY UPDATE Name = ?, Image = ?, Email = ?; ", [data.sid, data.name, data.image, data.email, data.name, data.image, data.email],
                     function(err, results, fields) {
                         if (err) {
                             console.log(err);
@@ -70,14 +71,14 @@ exports.login = function(req, res, next) {
                         //Regenerate session
                         req.session.regenerate(function() {
                             req.session.sid = data.sid;
-                            res.status(200).json({ "isSuccess": true, "message": "Authentication Passed" });
+                            res.status(200).json({ "isSuccess": true, "message": "Authentication Passed." });
                         });
                     });
             });
 
         })
         .catch(function(error) {
-            res.status(401).json({ "isSuccess": false, "message": "Fail to Verify IdToken" });
+            res.status(401).json({ "isSuccess": false, "message": "Fail to Verify IdToken." });
         });
 
 }
@@ -103,7 +104,7 @@ exports.list_faculties = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query(
+        conn.query(
             "SELECT * " +
             "FROM heroku_8fddb363146ffaf.faculty; ",
             function(err, results, fields) {
@@ -126,7 +127,7 @@ exports.faculty_info = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query(
+        conn.query(
             "SELECT * " +
             "FROM heroku_8fddb363146ffaf.faculty " +
             "WHERE fid = ?; ", [faculty_id],
@@ -154,7 +155,7 @@ exports.list_majors = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query(
+        conn.query(
             "SELECT * " +
             "FROM heroku_8fddb363146ffaf.major " +
             "WHERE fid = ?; ", [faculty_id],
@@ -179,7 +180,7 @@ exports.major_info = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query(
+        conn.query(
             "SELECT * " +
             "FROM heroku_8fddb363146ffaf.major " +
             "WHERE fid = ? and mid = ?; ", [faculty_id, major_id],
@@ -205,7 +206,7 @@ exports.list_upcoming_events = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query(
+        conn.query(
             "SELECT * " +
             "FROM heroku_8fddb363146ffaf.event natural join heroku_8fddb363146ffaf.event_time " +
             "WHERE current_timestamp() between Time_Start-interval 1 hour and Time_End; ",
@@ -233,7 +234,7 @@ exports.list_student_attended_events = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query(
+        conn.query(
             "SELECT * " +
             "FROM heroku_8fddb363146ffaf.event_time NATURAL JOIN heroku_8fddb363146ffaf.event " +
             "WHERE tid IN ( " +
@@ -266,7 +267,7 @@ exports.student_join_event = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query(
+        conn.query(
             "INSERT INTO `heroku_8fddb363146ffaf`.`student_attend_event_time` (`SID`, `TID`) " +
             "VALUES (?, ?); ", [sid, time_id],
             function(err, results, fields) {
@@ -274,18 +275,18 @@ exports.student_join_event = function(req, res, next) {
                     switch (err.code) {
                         case "ER_DUP_ENTRY":
                             console.log("duplicate entry");
-                            res.status(200).json({ "isSuccess": true, "message": "Already joined the event" });
+                            res.status(200).json({ "isSuccess": true, "message": "Already joined the event." });
                             break;
                         case "ER_NO_REFERENCED_ROW_2":
                             console.log("event time not found");
-                            res.status(404).json({ "isSuccess": false, "message": "Event not found" });
+                            res.status(404).json({ "isSuccess": false, "message": "Event not found." });
                             break;
                     }
                     console.log(err);
                     return next("Mysql error, check your query");
                 }
 
-                res.status(200).json({ "isSuccess": true, "message": "Joined the event" });
+                res.status(200).json({ "isSuccess": true, "message": "Joined the event." });
             });
     });
 
@@ -297,7 +298,7 @@ exports.list_events = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query(
+        conn.query(
             "SELECT * " +
             "FROM heroku_8fddb363146ffaf.event; ",
             function(err, results, fields) {
@@ -320,7 +321,7 @@ exports.event_info = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query(
+        conn.query(
             "SELECT * " +
             "FROM heroku_8fddb363146ffaf.event " +
             "WHERE eid = ?; ", [event_id],
@@ -346,7 +347,7 @@ exports.list_upcoming_games = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query(
+        conn.query(
             "SELECT * " +
             "FROM heroku_8fddb363146ffaf.game " +
             "WHERE current_timestamp() between Time_Start and Time_End; ",
@@ -374,7 +375,7 @@ exports.list_student_played_games = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query(
+        conn.query(
             "SELECT * " +
             "FROM heroku_8fddb363146ffaf.game NATURAL JOIN heroku_8fddb363146ffaf.student_play_game " +
             "WHERE sid = ?; ", [sid],
@@ -414,7 +415,7 @@ exports.student_play_game = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query(
+        conn.query(
             "INSERT INTO `heroku_8fddb363146ffaf`.`student_play_game` (`SID`, `GID`, `Point`) " +
             "VALUES (?, ?, ?); ", [sid, game_id, points],
             function(err, results, fields) {
@@ -422,18 +423,18 @@ exports.student_play_game = function(req, res, next) {
                     switch (err.code) {
                         case "ER_DUP_ENTRY":
                             console.log("duplicate entry");
-                            res.status(200).json({ "isSuccess": true, "message": "Already played the game" });
+                            res.status(200).json({ "isSuccess": true, "message": "Already played the game." });
                             break;
                         case "ER_NO_REFERENCED_ROW_2":
                             console.log("game not found");
-                            res.status(404).json({ "isSuccess": false, "message": "Game not found" });
+                            res.status(404).json({ "isSuccess": false, "message": "Game not found." });
                             break;
                     }
                     console.log(err);
                     return next("Mysql error, check your query");
                 }
 
-                res.status(200).json({ "isSuccess": true, "message": "Played the game" });
+                res.status(200).json({ "isSuccess": true, "message": "Played the game." });
             });
     });
 
@@ -445,7 +446,7 @@ exports.list_games = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query(
+        conn.query(
             "SELECT * " +
             "FROM heroku_8fddb363146ffaf.game; ",
             function(err, results, fields) {
@@ -468,7 +469,7 @@ exports.game_info = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query(
+        conn.query(
             "SELECT * " +
             "FROM heroku_8fddb363146ffaf.game " +
             "WHERE gid = ?; ", [game_id],
@@ -496,7 +497,7 @@ exports.game_questions = function(req, res, next) {
 
         if (err) return next("Cannot Connect");
 
-        var query = conn.query(
+        conn.query(
             "SELECT * " +
             "FROM heroku_8fddb363146ffaf.game_question NATURAL JOIN heroku_8fddb363146ffaf.answer_choice " +
             "WHERE gid = ?; ", [game_id],

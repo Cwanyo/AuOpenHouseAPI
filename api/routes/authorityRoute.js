@@ -17,6 +17,9 @@ router.route("/login")
 router.route("/logout")
     .get(authority.logout);
 
+router.route("/request")
+    .put(authority.request);
+
 //All below routes requires to set MYSQL time zone offset to Thailand (+07:00)
 router.use(authority.SetTimeZone);
 
