@@ -20,7 +20,7 @@ router.route("/logout")
 router.use(student.SetTimeZone);
 
 //All below routes requires user authentication
-router.use(student.Authentication);
+//router.use(student.Authentication);
 
 router.route("/faculties")
     .get(student.list_faculties);
