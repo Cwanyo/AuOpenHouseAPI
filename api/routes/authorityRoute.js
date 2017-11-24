@@ -54,10 +54,13 @@ router.route("/events/:event_id/times/:time_id")
 //All below routes requires admin authentication
 router.use(authority.AuthenticationAdmin);
 
-router.route("/authority/:approval")
-    .get(authority.list_authority_account);
+router.route("/authorities/:approval_status")
+    .get(authority.list_authorities_account);
 
-router.route("/authority")
+router.route("/authorities")
     .patch(authority.edit_authority);
+
+router.route("/authorities/:authority_id")
+    .delete(authority.delete_authority);
 
 module.exports = router;

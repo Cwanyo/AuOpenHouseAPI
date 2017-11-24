@@ -46,9 +46,10 @@ URL : https://auopenhouse.herokuapp.com/api/authority/
 | Get list of all events (According to state) | GET | /events/:state | state=[int] | - |
 | Add new event | POST | /events | - | event=[json] |
 | Edit event | PATCH | /events | - | event=[json] |
-| Delete event | DELETE | /events/:event_id | event_id=[int] | - |
+| Disable event | DELETE | /events/:event_id | event_id=[int] | - |
 | Get event times | GET | /events/:event_id/times | - | - |
-| Delete event times | DELETE | /events/:event_id/times/:time_id | time_id=[int] | - |
+| Disable event times | DELETE | /events/:event_id/times/:time_id | time_id=[int] | - |
 | **ALL BELOW ROUTES REQUIRES ADMIN AUTHENTICATION** |
-| Get list of all authority account (According to approval) | GET | /authority/:approval | approval=[int] | - |
-| Set authority account approval | PATCH | /authority | - | authority=[json] |
+| Get list of all authorities account<br>(According to approval status) | GET | /authorities/:approval_status | approval_status=[int] | - |
+| Set authority account approval status | PATCH | /authorities | - | authority=[json] |
+| Delete authority account | DELETE | /authorities/:authority_id | authority_id=[int] | - |

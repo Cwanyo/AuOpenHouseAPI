@@ -317,7 +317,7 @@ exports.add_events = function(req, res, next) {
 
                 if (results.insertId) {
 
-                    data.Event_Time.forEach(t => {
+                    event.Event_Time.forEach(t => {
                         conn.query(
                             "INSERT INTO `heroku_8fddb363146ffaf`.`event_time` (`EID`, `Time_Start`, `Time_End`) " +
                             "VALUES (?, ?, ?); ", [results.insertId, t.Time_Start, t.Time_End],
@@ -352,9 +352,18 @@ exports.add_events = function(req, res, next) {
 
 exports.edit_events = function(req, res, next) {
 
+    //validation
+    req.assert("event", "event is required").notEmpty();
+
+    var errors = req.validationErrors();
+    if (errors) {
+        res.status(422).json(errors);
+        return;
+    }
+
     var aid = req.session.aid;
 
-    var data = req.body.event;
+    var event = req.body.event;
 
     req.getConnection(function(err, conn) {
 
@@ -363,14 +372,14 @@ exports.edit_events = function(req, res, next) {
         conn.query(
             "UPDATE `heroku_8fddb363146ffaf`.`event` " +
             "SET `Name`= ?, `Info`= ?, `Image`= ?, `State`= ?, `Location_Latitude`= ?, `Location_Longitude`= ?, `MID`= ?, `FID`= ? " +
-            "WHERE `EID`= ?;", [data.Name, data.Info, data.Image, data.State, data.Location_Latitude, data.Location_Longitude, data.MID, data.FID, data.EID],
+            "WHERE `EID`= ?;", [event.Name, event.Info, event.Image, event.State, event.Location_Latitude, event.Location_Longitude, event.MID, event.FID, event.EID],
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
                     return next("Mysql error, check your query at edit_events(1)");
                 }
 
-                data.Event_Time.forEach(t => {
+                event.Event_Time.forEach(t => {
                     if (t.TID) {
                         //Edit time
                         conn.query(
@@ -387,7 +396,7 @@ exports.edit_events = function(req, res, next) {
                         //Add new time
                         conn.query(
                             "INSERT INTO `heroku_8fddb363146ffaf`.`event_time` (`EID`, `Time_Start`, `Time_End`) " +
-                            "VALUES (?, ?, ?); ", [data.EID, t.Time_Start, t.Time_End],
+                            "VALUES (?, ?, ?); ", [event.EID, t.Time_Start, t.Time_End],
                             function(err, results, fields) {
                                 if (err) {
                                     console.log(err);
@@ -399,7 +408,7 @@ exports.edit_events = function(req, res, next) {
 
                 conn.query(
                     "INSERT INTO `heroku_8fddb363146ffaf`.`event_log` (`EID`, `AID`, `Log` ) " +
-                    "VALUES (?, ?, ?); ", [data.EID, aid, "edited"],
+                    "VALUES (?, ?, ?); ", [event.EID, aid, "edited"],
                     function(err, results, fields) {
                         if (err) {
                             console.log(err);
@@ -525,9 +534,9 @@ exports.disable_events = function(req, res, next) {
 
 }
 
-exports.list_authority_account = function(req, res, next) {
+exports.list_authorities_account = function(req, res, next) {
 
-    var approval = req.params.approval;
+    var approval_status = req.params.approval_status;
 
     req.getConnection(function(err, conn) {
 
@@ -542,7 +551,7 @@ exports.list_authority_account = function(req, res, next) {
             "SELECT MID, Name AS Major_Name " +
             "FROM heroku_8fddb363146ffaf.major) AS m ON ef.mid = m.mid " +
             "WHERE Accout_Approval = ? " +
-            "ORDER BY ef.FID ASC; ", [approval],
+            "ORDER BY ef.FID ASC; ", [approval_status],
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
@@ -579,10 +588,33 @@ exports.edit_authority = function(req, res, next) {
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
-                    return next("Mysql error, check your query at list_events");
+                    return next("Mysql error, check your query at edit_authority");
                 }
 
                 res.status(200).json({ "isSuccess": true, "message": "Authority account approval has been changed." });
+            });
+    });
+
+}
+
+exports.delete_authority = function(req, res, next) {
+
+    var authority_id = req.params.authority_id;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        conn.query(
+            "DELETE FROM `heroku_8fddb363146ffaf`.`authority` " +
+            "WHERE `AID` = ?; ", [authority_id],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query at delete_authority");
+                }
+
+                res.status(200).json({ "isSuccess": true, "message": "Authority account has been deleted." });
             });
     });
 
