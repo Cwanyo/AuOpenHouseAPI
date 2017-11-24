@@ -564,6 +564,49 @@ exports.list_games = function(req, res, next) {
 
 }
 
+exports.disable_games = function(req, res, next) {
+
+    var aid = req.session.aid;
+
+    var game_id = req.params.game_id;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        conn.query(
+            "UPDATE `heroku_8fddb363146ffaf`.`game`  " +
+            "SET `State`='0' " +
+            "WHERE `GID`= ?; ", [game_id],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query at disable_games");
+                }
+
+                if (results.changedRows) {
+
+                    conn.query(
+                        "INSERT INTO `heroku_8fddb363146ffaf`.`game_log` (`GID`, `AID`, `Log` ) " +
+                        "VALUES (?, ?, ?) ", [game_id, aid, "deleted"],
+                        function(err, results, fields) {
+                            if (err) {
+                                console.log(err);
+                                return next("Mysql error, check your query at disable_games log");
+                            }
+                        });
+
+                    res.status(200).json({ "isSuccess": true, "message": "Game deleted." });
+
+                } else {
+                    res.status(400).json({ "isSuccess": false, "message": "Cannot delete game." });
+                }
+
+            });
+    });
+
+}
+
 exports.list_authorities_account = function(req, res, next) {
 
     var approval_status = req.params.approval_status;
