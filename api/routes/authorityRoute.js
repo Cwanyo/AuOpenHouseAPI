@@ -1,5 +1,7 @@
 "use strict";
 
+//TODO - check if valid JSON data
+
 var authority = require("../controllers/authorityController");
 
 var express = require("express");
@@ -32,8 +34,10 @@ router.route("/faculties/:faculty_id/majors")
 //All below routes requires staff authentication
 router.use(authority.AuthenticationStaff);
 
-router.route("/events")
+router.route("/events/:state")
     .get(authority.list_events)
+
+router.route("/events")
     .post(authority.add_events)
     .patch(authority.edit_events);
 
@@ -48,5 +52,11 @@ router.route("/events/:event_id/times/:time_id")
 
 //All below routes requires admin authentication
 router.use(authority.AuthenticationAdmin);
+
+router.route("/authority/:approval")
+    .get(authority.list_authority_account);
+
+router.route("/authority")
+    .patch(authority.edit_authority);
 
 module.exports = router;

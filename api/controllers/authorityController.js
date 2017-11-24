@@ -134,7 +134,7 @@ exports.logout = function(req, res, next) {
 exports.request = function(req, res, next) {
 
     //validation
-    req.assert("request", "authority is required").notEmpty();
+    req.assert("request", "request is required").notEmpty();
 
     var errors = req.validationErrors();
     if (errors) {
@@ -259,6 +259,8 @@ exports.list_majors = function(req, res, next) {
 
 exports.list_events = function(req, res, next) {
 
+    var state = req.params.state;
+
     req.getConnection(function(err, conn) {
 
         if (err) return next("Cannot Connect");
@@ -271,8 +273,8 @@ exports.list_events = function(req, res, next) {
             "FROM heroku_8fddb363146ffaf.faculty) AS f ON e.fid = f.fid) AS ef LEFT JOIN ( " +
             "SELECT MID, Name AS Major_Name " +
             "FROM heroku_8fddb363146ffaf.major) AS m ON ef.mid = m.mid " +
-            "WHERE state = 1 " +
-            "ORDER BY ef.FID ASC; ",
+            "WHERE state = ? " +
+            "ORDER BY ef.FID ASC; ", [state],
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
@@ -287,9 +289,18 @@ exports.list_events = function(req, res, next) {
 
 exports.add_events = function(req, res, next) {
 
+    //validation
+    req.assert("event", "event is required").notEmpty();
+
+    var errors = req.validationErrors();
+    if (errors) {
+        res.status(422).json(errors);
+        return;
+    }
+
     var aid = req.session.aid;
 
-    var data = req.body.event;
+    var event = req.body.event;
 
     req.getConnection(function(err, conn) {
 
@@ -297,7 +308,7 @@ exports.add_events = function(req, res, next) {
 
         conn.query(
             "INSERT INTO `heroku_8fddb363146ffaf`.`event` (`Name`, `Info`, `Image`, `Location_Latitude`, `Location_Longitude`, `MID`, `FID`) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?); ", [data.Name, data.Info, data.Image, data.Location_Latitude, data.Location_Longitude, data.MID, data.FID],
+            "VALUES (?, ?, ?, ?, ?, ?, ?); ", [event.Name, event.Info, event.Image, event.Location_Latitude, event.Location_Longitude, event.MID, event.FID],
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
@@ -509,6 +520,69 @@ exports.disable_events = function(req, res, next) {
                     res.status(400).json({ "isSuccess": false, "message": "Cannot delete event." });
                 }
 
+            });
+    });
+
+}
+
+exports.list_authority_account = function(req, res, next) {
+
+    var approval = req.params.approval;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        conn.query(
+            "SELECT AID, Name, Image, Email, Role, Accout_Approval, ef.FID, ef.MID, Faculty_Name, Major_Name, Icon " +
+            "FROM (SELECT AID, Name, Image, Email, Role, Accout_Approval, e.FID, e.MID, Faculty_Name, Icon " +
+            "FROM heroku_8fddb363146ffaf.authority AS e LEFT JOIN ( " +
+            "SELECT FID, Name AS Faculty_Name, Icon " +
+            "FROM heroku_8fddb363146ffaf.faculty) AS f ON e.fid = f.fid) AS ef LEFT JOIN ( " +
+            "SELECT MID, Name AS Major_Name " +
+            "FROM heroku_8fddb363146ffaf.major) AS m ON ef.mid = m.mid " +
+            "WHERE Accout_Approval = ? " +
+            "ORDER BY ef.FID ASC; ", [approval],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query at list_events");
+                }
+
+                res.status(200).json(results);
+            });
+    });
+
+}
+
+exports.edit_authority = function(req, res, next) {
+
+    //validation
+    req.assert("authority", "authority is required").notEmpty();
+
+    var errors = req.validationErrors();
+    if (errors) {
+        res.status(422).json(errors);
+        return;
+    }
+
+    var authority = req.body.authority;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        conn.query(
+            "UPDATE `heroku_8fddb363146ffaf`.`authority` " +
+            "SET `Accout_Approval` = ? " +
+            "WHERE `AID` = ?; ", [authority.Accout_Approval, authority.AID],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query at list_events");
+                }
+
+                res.status(200).json({ "isSuccess": true, "message": "Authority account approval has been changed." });
             });
     });
 
