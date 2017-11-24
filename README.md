@@ -42,13 +42,13 @@ URL : https://auopenhouse.herokuapp.com/api/authority/
 | Get list of all faculties | GET | /faculties | - | - |
 | Get list of all majors in the faculty | GET | /faculties/:faculty_id/majors | faculty_id=[int] | - |
 | **ALL BELOW ROUTES REQUIRES STAFF AUTHENTICATION** |
-| Get list of all events | GET | /events | - | - |
 | Get list of all events (According to state) | GET | /events/:state | state=[int] | - |
 | Add new event | POST | /events | - | event=[json] |
 | Edit event | PATCH | /events | - | event=[json] |
 | Disable event | DELETE | /events/:event_id | event_id=[int] | - |
 | Get event times | GET | /events/:event_id/times | - | - |
 | Disable event times | DELETE | /events/:event_id/times/:time_id | time_id=[int] | - |
+| Get list of all games (According to state) | GET | /games/:state | state=[int] | - |
 | **ALL BELOW ROUTES REQUIRES ADMIN AUTHENTICATION** |
 | Get list of all authorities account<br>(According to approval status) | GET | /authorities/:approval_status | approval_status=[int] | - |
 | Set authority account approval status | PATCH | /authorities | - | authority=[json] |

@@ -44,6 +44,9 @@ router.route("/events")
 router.route("/events/:event_id")
     .delete(authority.disable_events);
 
+router.route("/games/:state")
+    .get(authority.list_games)
+
 //TODO - event_time have default state that set to 1
 router.route("/events/:event_id/times")
     .get(authority.event_time);

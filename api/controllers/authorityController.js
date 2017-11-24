@@ -534,6 +534,36 @@ exports.disable_events = function(req, res, next) {
 
 }
 
+exports.list_games = function(req, res, next) {
+
+    var state = req.params.state;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        conn.query(
+            "SELECT GID, Name, Info, Time_Start, Time_End, State, Location_Latitude, Location_Longitude, ef.FID, ef.MID, Faculty_Name, Major_Name, Icon " +
+            "FROM (SELECT GID, Name, Info, Time_Start, Time_End, State, Location_Latitude, Location_Longitude, e.FID, e.MID, Faculty_Name, Icon " +
+            "FROM heroku_8fddb363146ffaf.game AS e LEFT JOIN ( " +
+            "SELECT FID, Name AS Faculty_Name, Icon " +
+            "FROM heroku_8fddb363146ffaf.faculty) AS f ON e.fid = f.fid) AS ef LEFT JOIN ( " +
+            "SELECT MID, Name AS Major_Name " +
+            "FROM heroku_8fddb363146ffaf.major) AS m ON ef.mid = m.mid " +
+            "WHERE state = ? " +
+            "ORDER BY ef.FID ASC; ", [state],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query at list_games");
+                }
+
+                res.status(200).json(results);
+            });
+    });
+
+}
+
 exports.list_authorities_account = function(req, res, next) {
 
     var approval_status = req.params.approval_status;
