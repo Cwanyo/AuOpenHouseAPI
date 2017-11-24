@@ -19,6 +19,7 @@ router.route("/logout")
 //All below routes requires to set MYSQL time zone offset to Thailand (+07:00)
 router.use(student.SetTimeZone);
 
+//TODO - un comment this bypass!
 //All below routes requires user authentication
 //router.use(student.Authentication);
 
