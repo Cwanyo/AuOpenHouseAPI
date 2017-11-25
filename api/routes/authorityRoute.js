@@ -34,6 +34,7 @@ router.route("/faculties/:faculty_id/majors")
 //All below routes requires staff authentication
 router.use(authority.AuthenticationStaff);
 
+//Event manage
 router.route("/events/:state")
     .get(authority.list_events)
 
@@ -44,18 +45,28 @@ router.route("/events")
 router.route("/events/:event_id")
     .delete(authority.disable_events);
 
+//TODO - event_time have default state that set to 1
+router.route("/events/:event_id/times")
+    .get(authority.event_times);
+
+router.route("/events/:event_id/times/:time_id")
+    .delete(authority.disable_event_time);
+
+//Game manage
 router.route("/games/:state")
     .get(authority.list_games)
+
+router.route("/games")
+    .post(authority.add_games)
 
 router.route("/games/:game_id")
     .delete(authority.disable_games);
 
-//TODO - event_time have default state that set to 1
-router.route("/events/:event_id/times")
-    .get(authority.event_time);
+router.route("/games/:game_id/questions")
+    .get(authority.game_questions);
 
-router.route("/events/:event_id/times/:time_id")
-    .delete(authority.disable_event_time);
+router.route("/games/:game_id/questions/:question_id/choices")
+    .get(authority.answer_choices);
 
 //All below routes requires admin authentication
 router.use(authority.AuthenticationAdmin);

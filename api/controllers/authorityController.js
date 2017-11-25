@@ -8,7 +8,7 @@ exports.AuthenticationStaff = function(req, res, next) {
         console.log("Authentication staff Passed", req.method, req.url);
         next();
     } else {
-        res.sendStatus(401);
+        return res.status(401).json({ "isSuccess": false, "message": "Unauthorized." });
     }
 }
 
@@ -17,7 +17,7 @@ exports.AuthenticationAdmin = function(req, res, next) {
         console.log("Authentication admin Passed", req.method, req.url);
         next();
     } else {
-        res.sendStatus(401);
+        return res.status(401).json({ "isSuccess": false, "message": "Unauthorized." });
     }
 }
 
@@ -467,7 +467,7 @@ exports.disable_event_time = function(req, res, next) {
 
 }
 
-exports.event_time = function(req, res, next) {
+exports.event_times = function(req, res, next) {
 
     var event_id = req.params.event_id;
 
@@ -564,6 +564,105 @@ exports.list_games = function(req, res, next) {
 
 }
 
+exports.add_games = function(req, res, next) {
+
+    //validation
+    req.assert("game", "game is required").notEmpty();
+
+    var errors = req.validationErrors();
+    if (errors) {
+        res.status(422).json(errors);
+        return;
+    }
+
+    var aid = req.session.aid;
+
+    var game = req.body.game;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        conn.query(
+            "INSERT INTO `heroku_8fddb363146ffaf`.`game` (`Name`, `Info`, `Image`, `Time_Start`, `Time_End`, `Location_Latitude`, `Location_Longitude`, `MID`, `FID`) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?); ", [game.Name, game.Info, game.Image, game.Time_Start, game.Time_End, game.Location_Latitude, game.Location_Longitude, game.MID, game.FID],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query at add_games(1)");
+                }
+
+                if (results.insertId) {
+
+                    game.Game_Question.forEach(q => {
+                        conn.query(
+                            "INSERT INTO `heroku_8fddb363146ffaf`.`game_question` (`GID`, `Question`) " +
+                            "VALUES (?, ?); ", [results.insertId, q.Question],
+                            function(err, results, fields) {
+                                if (err) {
+                                    console.log(err);
+                                    return next("Mysql error, check your query at add_games(2)");
+                                }
+
+                                if (results.insertId) {
+
+                                    var QID = results.insertId;
+                                    var RightChoice = parseInt(q.Right_Choice);
+                                    var CountChoice = 1;
+
+                                    q.Answer_Choice.forEach(a => {
+                                        //create new var because inside func can't access
+                                        var c = CountChoice;
+
+                                        conn.query(
+                                            "INSERT INTO `heroku_8fddb363146ffaf`.`answer_choice` (`QID`, `Choice`) " +
+                                            "VALUES (?, ?); ", [results.insertId, a.Choice],
+                                            function(err, results, fields) {
+                                                if (err) {
+                                                    console.log(err);
+                                                    return next("Mysql error, check your query at add_games(3)");
+                                                }
+                                                //if current choice = rightchoice
+                                                if (c == RightChoice) {
+                                                    conn.query(
+                                                        "UPDATE `heroku_8fddb363146ffaf`.`game_question` " +
+                                                        "SET `Right_Choice`= ? " +
+                                                        "WHERE `QID`= ? ", [results.insertId, QID],
+                                                        function(err, results, fields) {
+                                                            if (err) {
+                                                                console.log(err);
+                                                                return next("Mysql error, check your query at add_games(4)");
+                                                            }
+                                                        });
+                                                }
+                                            });
+                                        CountChoice++;
+                                    });
+                                }
+                            });
+                    });
+
+                    conn.query(
+                        "INSERT INTO `heroku_8fddb363146ffaf`.`game_log` (`GID`, `AID`, `Log` ) " +
+                        "VALUES (?, ?, ?); ", [results.insertId, aid, "created"],
+                        function(err, results, fields) {
+                            if (err) {
+                                console.log(err);
+                                return next("Mysql error, check your query at add_games(4)");
+                            }
+                        });
+
+                    res.status(200).json({ "isSuccess": true, "message": "Game added." });
+
+                } else {
+                    res.status(400).json({ "isSuccess": false, "message": "Cannot add game." });
+                }
+
+            });
+    });
+
+}
+
 exports.disable_games = function(req, res, next) {
 
     var aid = req.session.aid;
@@ -602,6 +701,55 @@ exports.disable_games = function(req, res, next) {
                     res.status(400).json({ "isSuccess": false, "message": "Cannot delete game." });
                 }
 
+            });
+    });
+
+}
+
+exports.game_questions = function(req, res, next) {
+
+    var game_id = req.params.game_id;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        conn.query(
+            "SELECT * " +
+            "FROM heroku_8fddb363146ffaf.game_question " +
+            "WHERE gid = ?; ", [game_id],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query at game_questions");
+                }
+
+                res.status(200).json(results);
+            });
+    });
+
+}
+
+exports.answer_choices = function(req, res, next) {
+
+    var game_id = req.params.game_id;
+    var question_id = req.params.question_id;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        conn.query(
+            "SELECT * " +
+            "FROM heroku_8fddb363146ffaf.answer_choice " +
+            "WHERE qid = ?; ", [question_id],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query at answer_choices");
+                }
+
+                res.status(200).json(results);
             });
     });
 

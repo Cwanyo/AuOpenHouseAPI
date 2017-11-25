@@ -46,10 +46,13 @@ URL : https://auopenhouse.herokuapp.com/api/authority/
 | Add new event | POST | /events | - | event=[json] |
 | Edit event | PATCH | /events | - | event=[json] |
 | Disable event | DELETE | /events/:event_id | event_id=[int] | - |
-| Get event times | GET | /events/:event_id/times | - | - |
-| Disable event times | DELETE | /events/:event_id/times/:time_id | time_id=[int] | - |
+| Get event times | GET | /events/:event_id/times | event_id=[int] | - |
+| Disable event times | DELETE | /events/:event_id/times/:time_id | event_id<br>time_id=[int] | - |
 | Get list of all games (According to state) | GET | /games/:state | state=[int] | - |
-| Disable game | DELETE | /game/:game_id | game_id=[int] | - |
+| Add new game | POST | /games | - | game=[json] |
+| Disable game | DELETE | /games/:game_id | game_id=[int] | - |
+| Get game questions | GET | /games/:game_id/questions | game_id=[int] | - |
+| Get questions choices | GET | /games/:game_id/questions/:question_id/choices | game_id=[int]<br>question_id=[int] | - |
 | **ALL BELOW ROUTES REQUIRES ADMIN AUTHENTICATION** |
 | Get list of all authorities account<br>(According to approval status) | GET | /authorities/:approval_status | approval_status=[int] | - |
 | Set authority account approval status | PATCH | /authorities | - | authority=[json] |
