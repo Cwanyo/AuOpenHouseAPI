@@ -543,8 +543,8 @@ exports.list_games = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         conn.query(
-            "SELECT GID, Name, Info, Time_Start, Time_End, State, Location_Latitude, Location_Longitude, ef.FID, ef.MID, Faculty_Name, Major_Name, Icon " +
-            "FROM (SELECT GID, Name, Info, Time_Start, Time_End, State, Location_Latitude, Location_Longitude, e.FID, e.MID, Faculty_Name, Icon " +
+            "SELECT GID, Name, Info, Image, Time_Start, Time_End, State, Location_Latitude, Location_Longitude, ef.FID, ef.MID, Faculty_Name, Major_Name, Icon " +
+            "FROM (SELECT GID, Name, Info, Image, Time_Start, Time_End, State, Location_Latitude, Location_Longitude, e.FID, e.MID, Faculty_Name, Icon " +
             "FROM heroku_8fddb363146ffaf.game AS e LEFT JOIN ( " +
             "SELECT FID, Name AS Faculty_Name, Icon " +
             "FROM heroku_8fddb363146ffaf.faculty) AS f ON e.fid = f.fid) AS ef LEFT JOIN ( " +
