@@ -691,7 +691,6 @@ exports.edit_games = function(req, res, next) {
                     console.log(err);
                     return next("Mysql error, check your query at edit_games(1)");
                 }
-
                 game.Game_Question.forEach(q => {
                     if (q.QID) {
                         //Edit question
@@ -705,40 +704,37 @@ exports.edit_games = function(req, res, next) {
                                     return next("Mysql error, check your query at edit_games(2)");
                                 }
 
-                                if (results.changedRows) {
+                                var QID = q.QID;
+                                var RightChoice = parseInt(q.Right_Choice);
 
-                                    var QID = q.QID;
-                                    var RightChoice = parseInt(q.Right_Choice);
+                                q.Answer_Choice.forEach(a => {
+                                    //create new var because inside func can't access
 
-                                    q.Answer_Choice.forEach(a => {
-                                        //create new var because inside func can't access
+                                    conn.query(
+                                        "UPDATE `heroku_8fddb363146ffaf`.`answer_choice` " +
+                                        "SET `Choice` = ? " +
+                                        "WHERE `CID` = ? and `QID` = ?; ", [a.Choice, a.CID, QID],
+                                        function(err, results, fields) {
+                                            if (err) {
+                                                console.log(err);
+                                                return next("Mysql error, check your query at edit_games(2.1)");
+                                            }
+                                            //if current choice = rightchoice
+                                            if (a.CID == RightChoice) {
+                                                conn.query(
+                                                    "UPDATE `heroku_8fddb363146ffaf`.`game_question` " +
+                                                    "SET `Right_Choice`= ? " +
+                                                    "WHERE `QID`= ? ", [RightChoice, QID],
+                                                    function(err, results, fields) {
+                                                        if (err) {
+                                                            console.log(err);
+                                                            return next("Mysql error, check your query at edit_games(2.2)");
+                                                        }
+                                                    });
+                                            }
+                                        });
+                                });
 
-                                        conn.query(
-                                            "UPDATE `heroku_8fddb363146ffaf`.`answer_choice` " +
-                                            "SET `Choice` = ? " +
-                                            "WHERE `CID` = ? and `QID` = ?; ", [a.Choice, a.CID, QID],
-                                            function(err, results, fields) {
-                                                if (err) {
-                                                    console.log(err);
-                                                    return next("Mysql error, check your query at edit_games(2.1)");
-                                                }
-                                                //if current choice = rightchoice
-                                                if (a.CID == RightChoice) {
-                                                    conn.query(
-                                                        "UPDATE `heroku_8fddb363146ffaf`.`game_question` " +
-                                                        "SET `Right_Choice`= ? " +
-                                                        "WHERE `QID`= ? ", [RightChoice, QID],
-                                                        function(err, results, fields) {
-                                                            if (err) {
-                                                                console.log(err);
-                                                                return next("Mysql error, check your query at edit_games(2.2)");
-                                                            }
-                                                        });
-                                                }
-                                            });
-                                    });
-
-                                }
                             });
                     } else {
                         //Add new question
