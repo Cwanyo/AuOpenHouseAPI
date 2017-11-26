@@ -36,7 +36,7 @@ router.use(authority.AuthenticationStaff);
 
 //Event manage
 router.route("/events/:state")
-    .get(authority.list_events)
+    .get(authority.list_events);
 
 router.route("/events")
     .post(authority.add_events)
@@ -54,16 +54,20 @@ router.route("/events/:event_id/times/:time_id")
 
 //Game manage
 router.route("/games/:state")
-    .get(authority.list_games)
+    .get(authority.list_games);
 
 router.route("/games")
     .post(authority.add_games)
+    .patch(authority.edit_games);
 
 router.route("/games/:game_id")
     .delete(authority.disable_games);
 
 router.route("/games/:game_id/questions")
     .get(authority.game_questions);
+
+router.route("/games/:game_id/questions/:question_id")
+    .delete(authority.delete_game_question);
 
 router.route("/games/:game_id/questions/:question_id/choices")
     .get(authority.answer_choices);

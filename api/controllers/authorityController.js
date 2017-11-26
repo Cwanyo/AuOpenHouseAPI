@@ -663,6 +663,150 @@ exports.add_games = function(req, res, next) {
 
 }
 
+exports.edit_games = function(req, res, next) {
+
+    //validation
+    req.assert("game", "game is required").notEmpty();
+
+    var errors = req.validationErrors();
+    if (errors) {
+        res.status(422).json(errors);
+        return;
+    }
+
+    var aid = req.session.aid;
+
+    var game = req.body.game;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        conn.query(
+            "UPDATE `heroku_8fddb363146ffaf`.`game` " +
+            "SET `Name`= ?, `Info`= ?, `Image`= ?, `Time_Start`=?, `Time_End`=?, `State`= ?, `Location_Latitude`= ?, `Location_Longitude`= ?, `MID`= ?, `FID`= ? " +
+            "WHERE `GID`= ?;", [game.Name, game.Info, game.Image, game.Time_Start, game.Time_End, game.State, game.Location_Latitude, game.Location_Longitude, game.MID, game.FID, game.GID],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query at edit_games(1)");
+                }
+
+                game.Game_Question.forEach(q => {
+                    if (q.QID) {
+                        //Edit question
+                        conn.query(
+                            "UPDATE `heroku_8fddb363146ffaf`.`game_question` " +
+                            "SET `Question`= ?, `Right_Choice`= ? " +
+                            "WHERE `QID` = ?; ", [q.Question, q.Right_Choice, q.QID],
+                            function(err, results, fields) {
+                                if (err) {
+                                    console.log(err);
+                                    return next("Mysql error, check your query at edit_games(2)");
+                                }
+
+                                if (results.changedRows) {
+
+                                    var QID = q.QID;
+                                    var RightChoice = parseInt(q.Right_Choice);
+
+                                    q.Answer_Choice.forEach(a => {
+                                        //create new var because inside func can't access
+
+                                        conn.query(
+                                            "UPDATE `heroku_8fddb363146ffaf`.`answer_choice` " +
+                                            "SET `Choice` = ? " +
+                                            "WHERE `CID` = ? and `QID` = ?; ", [a.Choice, a.CID, QID],
+                                            function(err, results, fields) {
+                                                if (err) {
+                                                    console.log(err);
+                                                    return next("Mysql error, check your query at edit_games(2.1)");
+                                                }
+                                                //if current choice = rightchoice
+                                                if (a.CID == RightChoice) {
+                                                    conn.query(
+                                                        "UPDATE `heroku_8fddb363146ffaf`.`game_question` " +
+                                                        "SET `Right_Choice`= ? " +
+                                                        "WHERE `QID`= ? ", [RightChoice, QID],
+                                                        function(err, results, fields) {
+                                                            if (err) {
+                                                                console.log(err);
+                                                                return next("Mysql error, check your query at edit_games(2.2)");
+                                                            }
+                                                        });
+                                                }
+                                            });
+                                    });
+
+                                }
+                            });
+                    } else {
+                        //Add new question
+                        conn.query(
+                            "INSERT INTO `heroku_8fddb363146ffaf`.`game_question` (`GID`, `Question`) " +
+                            "VALUES (?, ?); ", [game.GID, q.Question],
+                            function(err, results, fields) {
+                                if (err) {
+                                    console.log(err);
+                                    return next("Mysql error, check your query at edit_games(3)");
+                                }
+
+                                if (results.insertId) {
+
+                                    var QID = results.insertId;
+                                    var RightChoice = parseInt(q.Right_Choice);
+                                    var CountChoice = 1;
+
+                                    q.Answer_Choice.forEach(a => {
+                                        //create new var because inside func can't access
+                                        var c = CountChoice;
+
+                                        conn.query(
+                                            "INSERT INTO `heroku_8fddb363146ffaf`.`answer_choice` (`QID`, `Choice`) " +
+                                            "VALUES (?, ?); ", [results.insertId, a.Choice],
+                                            function(err, results, fields) {
+                                                if (err) {
+                                                    console.log(err);
+                                                    return next("Mysql error, check your query at edit_games(3.1)");
+                                                }
+                                                //if current choice = rightchoice
+                                                if (c == RightChoice) {
+                                                    conn.query(
+                                                        "UPDATE `heroku_8fddb363146ffaf`.`game_question` " +
+                                                        "SET `Right_Choice`= ? " +
+                                                        "WHERE `QID`= ? ", [results.insertId, QID],
+                                                        function(err, results, fields) {
+                                                            if (err) {
+                                                                console.log(err);
+                                                                return next("Mysql error, check your query at edit_games(3.2)");
+                                                            }
+                                                        });
+                                                }
+                                            });
+                                        CountChoice++;
+                                    });
+                                }
+                            });
+                    }
+                });
+
+                conn.query(
+                    "INSERT INTO `heroku_8fddb363146ffaf`.`game_log` (`GID`, `AID`, `Log` ) " +
+                    "VALUES (?, ?, ?); ", [game.GID, aid, "edited"],
+                    function(err, results, fields) {
+                        if (err) {
+                            console.log(err);
+                            return next("Mysql error, check your query at edit_games(4)");
+                        }
+                    });
+
+                res.status(200).json({ "isSuccess": true, "message": "Game edited." });
+
+            });
+    });
+
+}
+
 exports.disable_games = function(req, res, next) {
 
     var aid = req.session.aid;
@@ -725,6 +869,49 @@ exports.game_questions = function(req, res, next) {
                 }
 
                 res.status(200).json(results);
+            });
+    });
+
+}
+
+exports.delete_game_question = function(req, res, next) {
+
+    var aid = req.session.aid;
+
+    var game_id = req.params.game_id;
+    var question_id = req.params.question_id;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        conn.query(
+            "DELETE FROM `heroku_8fddb363146ffaf`.`game_question` " +
+            "WHERE `QID` = ? and `GID` = ?; ", [question_id, game_id],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query at delete_game_question(1)");
+                }
+
+                if (results.affectedRows) {
+
+                    conn.query(
+                        "INSERT INTO `heroku_8fddb363146ffaf`.`game_log` (`GID`, `AID`, `Log` ) " +
+                        "VALUES (?, ?, ?); ", [game_id, aid, "deleted QID: " + question_id],
+                        function(err, results, fields) {
+                            if (err) {
+                                console.log(err);
+                                return next("Mysql error, check your query at delete_game_question(2)");
+                            }
+                        });
+
+                    res.status(200).json({ "isSuccess": true, "message": "Game question deleted." });
+
+                } else {
+                    res.status(400).json({ "isSuccess": false, "message": "Cannot delete game question." });
+                }
+
             });
     });
 
