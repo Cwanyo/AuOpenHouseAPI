@@ -501,7 +501,7 @@ exports.list_event_time_attendees = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         conn.query(
-            "SELECT Name, Image " +
+            "SELECT * " +
             "FROM heroku_8fddb363146ffaf.student_attend_event_time NATURAL JOIN heroku_8fddb363146ffaf.student " +
             "WHERE tid = ?; ", [time_id],
             function(err, results, fields) {
