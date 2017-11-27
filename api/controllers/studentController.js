@@ -69,10 +69,8 @@ exports.login = function(req, res, next) {
                         }
 
                         //Regenerate session
-                        req.session.regenerate(function() {
-                            req.session.sid = data.sid;
-                            res.status(200).json({ "isSuccess": true, "message": "Authentication Passed." });
-                        });
+                        req.session.sid = data.sid;
+                        res.status(200).json({ "isSuccess": true, "message": "Authentication Passed." });
                     });
             });
 
@@ -87,13 +85,8 @@ exports.logout = function(req, res, next) {
 
     if (req.session) {
         //Delete session object
-        req.session.destroy(function(err) {
-            if (err) {
-                return next(err);
-            } else {
-                return res.sendStatus(204);
-            }
-        });
+        req.session = null;
+        return res.sendStatus(204);
     }
 
 }
@@ -135,10 +128,6 @@ exports.faculty_info = function(req, res, next) {
                 if (err) {
                     console.log(err);
                     return next("Mysql error, check your query");
-                }
-
-                if (results.length < 1) {
-                    return res.status(404).send("Faculty not found");
                 }
 
                 res.status(200).json(results);
@@ -190,10 +179,6 @@ exports.major_info = function(req, res, next) {
                     return next("Mysql error, check your query");
                 }
 
-                if (results.length < 1) {
-                    return res.status(404).send("Major not found");
-                }
-
                 res.status(200).json(results);
             });
     });
@@ -207,17 +192,19 @@ exports.list_upcoming_events = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         conn.query(
-            "SELECT * " +
-            "FROM heroku_8fddb363146ffaf.event natural join heroku_8fddb363146ffaf.event_time " +
-            "WHERE current_timestamp() between Time_Start-interval 1 hour and Time_End; ",
+            "SELECT EID, Name, Info, Image, State, Location_Latitude, Location_Longitude, ef.FID, ef.MID, Faculty_Name, Major_Name, ef.TID, Time_Start, Time_End, Icon " +
+            "FROM (SELECT EID, Name, Info, Image, State, Location_Latitude, Location_Longitude, e.FID, e.MID, Faculty_Name, e.TID, Time_Start, Time_End, Icon " +
+            "FROM (SELECT EID, Name, Info, Image, State, Location_Latitude, Location_Longitude, MID, FID, TID, Time_Start, Time_End " +
+            "FROM heroku_8fddb363146ffaf.event NATURAL JOIN heroku_8fddb363146ffaf.event_time WHERE CURRENT_TIMESTAMP() BETWEEN Time_Start - INTERVAL 2 HOUR AND Time_End AND State = 1) AS e " +
+            "LEFT JOIN (SELECT FID, Name AS Faculty_Name, Icon " +
+            "FROM heroku_8fddb363146ffaf.faculty) AS f ON e.fid = f.fid) AS ef " +
+            "LEFT JOIN (SELECT MID, Name AS Major_Name " +
+            "FROM heroku_8fddb363146ffaf.major) AS m ON ef.mid = m.mid " +
+            "ORDER BY ef.FID ASC; ",
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
                     return next("Mysql error, check your query");
-                }
-
-                if (results.length < 1) {
-                    return res.status(404).send("Upcoming events not found");
                 }
 
                 res.status(200).json(results);
@@ -245,10 +232,6 @@ exports.list_student_attended_events = function(req, res, next) {
                 if (err) {
                     console.log(err);
                     return next("Mysql error, check your query");
-                }
-
-                if (results.length < 1) {
-                    return res.status(404).send("Events not found");
                 }
 
                 res.status(200).json(results);
@@ -331,10 +314,6 @@ exports.event_info = function(req, res, next) {
                     return next("Mysql error, check your query");
                 }
 
-                if (results.length < 1) {
-                    return res.status(404).send("Event not found");
-                }
-
                 res.status(200).json(results);
             });
     });
@@ -355,10 +334,6 @@ exports.list_upcoming_games = function(req, res, next) {
                 if (err) {
                     console.log(err);
                     return next("Mysql error, check your query");
-                }
-
-                if (results.length < 1) {
-                    return res.status(404).send("Upcoming games not found");
                 }
 
                 res.status(200).json(results);
@@ -383,10 +358,6 @@ exports.list_student_played_games = function(req, res, next) {
                 if (err) {
                     console.log(err);
                     return next("Mysql error, check your query");
-                }
-
-                if (results.length < 1) {
-                    return res.status(404).send("Games not found");
                 }
 
                 res.status(200).json(results);
@@ -479,10 +450,6 @@ exports.game_info = function(req, res, next) {
                     return next("Mysql error, check your query");
                 }
 
-                if (results.length < 1) {
-                    return res.status(404).send("Game not found");
-                }
-
                 res.status(200).json(results);
             });
     });
@@ -505,10 +472,6 @@ exports.game_questions = function(req, res, next) {
                 if (err) {
                     console.log(err);
                     return next("Mysql error, check your query");
-                }
-
-                if (results.length < 1) {
-                    return res.status(404).send("Game question not found");
                 }
 
                 res.status(200).json(results);

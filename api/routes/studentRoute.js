@@ -21,7 +21,7 @@ router.use(student.SetTimeZone);
 
 //TODO - un comment this bypass!
 //All below routes requires user authentication
-//router.use(student.Authentication);
+router.use(student.Authentication);
 
 router.route("/faculties")
     .get(student.list_faculties);
