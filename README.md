@@ -47,7 +47,8 @@ URL : https://auopenhouse.herokuapp.com/api/authority/
 | Edit event | PATCH | /events | - | event=[json] |
 | Disable event | DELETE | /events/:event_id | event_id=[int] | - |
 | Get event times | GET | /events/:event_id/times | event_id=[int] | - |
-| Disable event times | DELETE | /events/:event_id/times/:time_id | event_id<br>time_id=[int] | - |
+| Disable event times | DELETE | /events/:event_id/times/:time_id | event_id=[int]<br>time_id=[int] | - |
+| Get list of event time attendees | GET | /events/:event_id/times/:time_id/attendees | event_id=[int]<br>time_id=[int] | - |
 | Get list of all games (According to state) | GET | /games/:state | state=[int] | - |
 | Add new game | POST | /games | - | game=[json] |
 | Edit game | PATCH | /game | - | game=[json] |

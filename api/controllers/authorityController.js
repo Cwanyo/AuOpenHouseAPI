@@ -491,6 +491,31 @@ exports.event_times = function(req, res, next) {
 
 }
 
+exports.list_event_time_attendees = function(req, res, next) {
+
+    var event_id = req.params.event_id;
+    var time_id = req.params.time_id;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        conn.query(
+            "SELECT Name, Image " +
+            "FROM heroku_8fddb363146ffaf.student_attend_event_time NATURAL JOIN heroku_8fddb363146ffaf.student " +
+            "WHERE tid = ?; ", [time_id],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query at list_event_time_attendees");
+                }
+
+                res.status(200).json(results);
+            });
+    });
+
+}
+
 exports.disable_events = function(req, res, next) {
 
     var aid = req.session.aid;

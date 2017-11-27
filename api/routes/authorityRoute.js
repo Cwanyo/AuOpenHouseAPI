@@ -52,6 +52,9 @@ router.route("/events/:event_id/times")
 router.route("/events/:event_id/times/:time_id")
     .delete(authority.disable_event_time);
 
+router.route("/events/:event_id/times/:time_id/attendees")
+    .get(authority.list_event_time_attendees);
+
 //Game manage
 router.route("/games/:state")
     .get(authority.list_games);
