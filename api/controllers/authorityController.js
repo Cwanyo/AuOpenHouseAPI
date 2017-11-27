@@ -88,11 +88,9 @@ exports.login = function(req, res, next) {
                             switch (results[0].Accout_Approval) {
                                 case 1:
                                     //Regenerate session
-                                    req.session.regenerate(function() {
-                                        req.session.aid = data.aid;
-                                        req.session.role = results[0].Role;
-                                        res.status(200).json({ "isSuccess": true, "message": "Authentication Passed.", "role": results[0].Role });
-                                    });
+                                    req.session.aid = data.aid;
+                                    req.session.role = results[0].Role;
+                                    res.status(200).json({ "isSuccess": true, "message": "Authentication Passed.", "role": results[0].Role });
                                     break;
                                 case 0:
                                     res.status(401).json({ "isSuccess": false, "message": "Authority account not approved yet, Please wait for admin approval." });
@@ -120,13 +118,8 @@ exports.logout = function(req, res, next) {
 
     if (req.session) {
         //Delete session object
-        req.session.destroy(function(err) {
-            if (err) {
-                return next(err);
-            } else {
-                return res.sendStatus(204);
-            }
-        });
+        req.session = null;
+        return res.sendStatus(204);
     }
 
 }

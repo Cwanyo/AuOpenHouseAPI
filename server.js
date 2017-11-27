@@ -3,7 +3,7 @@ var express = require("express"),
     path = require("path"),
     bodyParser = require("body-parser"),
     expressValidator = require("express-validator"),
-    session = require("express-session"),
+    cookieSession = require('cookie-session'),
     app = express(),
     port = process.env.PORT || 8080;
 
@@ -24,11 +24,9 @@ var connection = require("express-myconnection"),
 app.use(connection(mysql, CLEARDB_DATABASE_URL, "pool"));
 
 app.set("trust proxy", 1);
-//TODO - add session expiration
-app.use(session({
+app.use(cookieSession({
     secret: "keyboard cat",
-    resave: false,
-    saveUninitialized: false
+    maxAge: 60 * 60 * 1000 * 24 // <- hours session expire
 }));
 
 //Student Routes
