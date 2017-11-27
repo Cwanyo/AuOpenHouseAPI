@@ -3,12 +3,17 @@
 /*Firebase*/
 var firebase = require("../firebase");
 
+exports.test = function(req, res, next) {
+    console.log("test", req.method, req.url);
+    next();
+}
+
 exports.Authentication = function(req, res, next) {
     if (req.session.sid) {
-        console.log("Authentication Passed", req.method, req.url);
+        console.log("Authentication student Passed", req.method, req.url);
         next();
     } else {
-        res.sendStatus(401);
+        return res.status(401).json({ "isSuccess": false, "message": "Unauthorized." });
     }
 }
 
@@ -222,12 +227,38 @@ exports.list_student_attended_events = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         conn.query(
-            "SELECT * " +
+            "SELECT EID, Name, Info, Image, State, Location_Latitude, Location_Longitude, FID, MID, TID, Time_Start, Time_End " +
             "FROM heroku_8fddb363146ffaf.event_time NATURAL JOIN heroku_8fddb363146ffaf.event " +
             "WHERE tid IN ( " +
             "SELECT tid " +
             "FROM heroku_8fddb363146ffaf.student_attend_event_time " +
-            "WHERE sid = ?) ", [sid],
+            "WHERE sid = ?) " +
+            "ORDER BY Time_Start ASC; ", [sid],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
+
+                res.status(200).json(results);
+            });
+    });
+
+}
+
+exports.myevent_info = function(req, res, next) {
+
+    var sid = req.session.sid;
+    var time_id = req.params.time_id;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        conn.query(
+            "SELECT * " +
+            "FROM heroku_8fddb363146ffaf.student_attend_event_time " +
+            "Where sid = ? and tid = ?; ", [sid, time_id],
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
@@ -270,6 +301,35 @@ exports.student_join_event = function(req, res, next) {
                 }
 
                 res.status(200).json({ "isSuccess": true, "message": "Joined the event." });
+            });
+    });
+
+}
+
+exports.student_leave_event = function(req, res, next) {
+
+    var time_id = req.params.time_id;
+
+    var sid = req.session.sid;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        conn.query(
+            "DELETE FROM `heroku_8fddb363146ffaf`.`student_attend_event_time` " +
+            "WHERE `SID`= ? and `TID` = ?; ", [sid, time_id],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
+
+                if (results.affectedRows) {
+                    res.status(200).json({ "isSuccess": true, "message": "Leaved the event." });
+                } else {
+                    res.status(400).json({ "isSuccess": false, "message": "Cannot leave event." });
+                }
             });
     });
 

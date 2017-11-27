@@ -6,6 +6,7 @@ var express = require("express");
 //RESTful route
 var router = express.Router();
 
+router.use(student.test);
 //Welcome route
 router.route("/")
     .get(student.welcome_page);
@@ -41,8 +42,14 @@ router.route("/upevents")
 router.route("/myevents")
     .get(student.list_student_attended_events);
 
-router.route("/myevents/:time_id/join")
+router.route("/myevents/:time_id")
+    .get(student.myevent_info);
+
+router.route("/myevents/:time_id")
     .post(student.student_join_event);
+
+router.route("/myevents/:time_id")
+    .delete(student.student_leave_event);
 
 router.route("/events")
     .get(student.list_events);
