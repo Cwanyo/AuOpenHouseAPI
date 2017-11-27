@@ -20,7 +20,9 @@ URL : https://auopenhouse.herokuapp.com/api/student/
 | Get major details in the faculty | GET | /faculties/:faculty_id/majors/:major_id | faculty_id=[int]<br>major_id=[int] | - |
 | Get list of upcoming events<br>(Between time start 1 hour and time end) | GET | /upevents | - | - |
 | Get list of my events<br>(Student attended events) | GET | /myevents | - | - |
-| Join the event | POST | /myevents/:time_id/join | time_id=[int] | - |
+| Check event attendance | Get | /myevents/:time_id | time_id=[int] | - |
+| Join the event | POST | /myevents/:time_id | time_id=[int] | - |
+| Delete the event in my events | POST | /myevents/:time_id | time_id=[int] | - |
 | Get list of all events | GET | /events | - | - |
 | Get event details | GET | /events/:event_id | event_id=[int] | - |
 | Get list of upcoming games<br>(Between time start and time end) | GET | /upgames | - | - |

@@ -3,11 +3,6 @@
 /*Firebase*/
 var firebase = require("../firebase");
 
-exports.test = function(req, res, next) {
-    console.log("test", req.method, req.url);
-    next();
-}
-
 exports.Authentication = function(req, res, next) {
     if (req.session.sid) {
         console.log("Authentication student Passed", req.method, req.url);

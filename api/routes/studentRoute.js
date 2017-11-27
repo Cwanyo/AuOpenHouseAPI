@@ -6,7 +6,6 @@ var express = require("express");
 //RESTful route
 var router = express.Router();
 
-router.use(student.test);
 //Welcome route
 router.route("/")
     .get(student.welcome_page);
