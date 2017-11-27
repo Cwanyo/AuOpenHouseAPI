@@ -300,8 +300,8 @@ exports.add_events = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         conn.query(
-            "INSERT INTO `heroku_8fddb363146ffaf`.`event` (`Name`, `Info`, `Image`, `Location_Latitude`, `Location_Longitude`, `MID`, `FID`) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?); ", [event.Name, event.Info, event.Image, event.Location_Latitude, event.Location_Longitude, event.MID, event.FID],
+            "INSERT INTO `heroku_8fddb363146ffaf`.`event` (`Name`, `Info`, `Image`, `State`, `Location_Latitude`, `Location_Longitude`, `MID`, `FID`) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?); ", [event.Name, event.Info, event.Image, event.State, event.Location_Latitude, event.Location_Longitude, event.MID, event.FID],
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
@@ -602,8 +602,8 @@ exports.add_games = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         conn.query(
-            "INSERT INTO `heroku_8fddb363146ffaf`.`game` (`Name`, `Info`, `Image`, `Time_Start`, `Time_End`, `Location_Latitude`, `Location_Longitude`, `MID`, `FID`) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?); ", [game.Name, game.Info, game.Image, game.Time_Start, game.Time_End, game.Location_Latitude, game.Location_Longitude, game.MID, game.FID],
+            "INSERT INTO `heroku_8fddb363146ffaf`.`game` (`Name`, `Info`, `Image`, `State`, `Time_Start`, `Time_End`, `Location_Latitude`, `Location_Longitude`, `MID`, `FID`) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?); ", [game.Name, game.Info, game.Image, game.State, game.Time_Start, game.Time_End, game.Location_Latitude, game.Location_Longitude, game.MID, game.FID],
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
