@@ -56,25 +56,30 @@ router.route("/events")
 router.route("/events/:event_id")
     .get(student.event_info);
 
-//TODO - don't display the game that already played
 router.route("/upgames")
     .get(student.list_upcoming_games);
 
 router.route("/mygames")
     .get(student.list_student_played_games);
 
-//TODO - have to find better ways to check the answer instead of sending the points that calc in client side
-//TODO - sum the game points and put it in student entity 
-router.route("/mygames/:game_id/play")
+router.route("/mygames")
     .post(student.student_play_game);
 
+router.route("/mygames/:game_id")
+    .get(student.mygame_intfo);
+
+router.route("/games/:game_id/questions")
+    .get(student.game_questions);
+
+router.route("/games/:game_id/questions/:question_id/choices")
+    .get(student.answer_choices);
+
+//TODO - have to find better ways to check the answer instead of sending the points that calc in client side
+//TODO - sum the game points and put it in student entity 
 router.route("/games")
     .get(student.list_games);
 
 router.route("/games/:game_id")
     .get(student.game_info);
-
-router.route("/games/:game_id/questions")
-    .get(student.game_questions);
 
 module.exports = router;
