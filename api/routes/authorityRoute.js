@@ -43,6 +43,9 @@ router.route("/events")
     .patch(authority.edit_events);
 
 router.route("/events/:event_id")
+    .patch(authority.enable_events);
+
+router.route("/events/:event_id")
     .delete(authority.disable_events);
 
 //TODO - event_time have default state that set to 1
@@ -62,6 +65,9 @@ router.route("/games/:state")
 router.route("/games")
     .post(authority.add_games)
     .patch(authority.edit_games);
+
+router.route("/games/:game_id")
+    .patch(authority.enable_games);
 
 router.route("/games/:game_id")
     .delete(authority.disable_games);

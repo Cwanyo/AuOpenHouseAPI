@@ -441,7 +441,7 @@ exports.disable_event_time = function(req, res, next) {
 
                     conn.query(
                         "INSERT INTO `heroku_8fddb363146ffaf`.`event_log` (`EID`, `AID`, `Log` ) " +
-                        "VALUES (?, ?, ?) ", [event_id, aid, "deleted TID: " + time_id],
+                        "VALUES (?, ?, ?) ", [event_id, aid, "disabled TID: " + time_id],
                         function(err, results, fields) {
                             if (err) {
                                 console.log(err);
@@ -449,10 +449,10 @@ exports.disable_event_time = function(req, res, next) {
                             }
                         });
 
-                    res.status(200).json({ "isSuccess": true, "message": "Event time deleted." });
+                    res.status(200).json({ "isSuccess": true, "message": "Event time disabled." });
 
                 } else {
-                    res.status(400).json({ "isSuccess": false, "message": "Cannot delete event time." });
+                    res.status(400).json({ "isSuccess": false, "message": "Cannot disable event time." });
                 }
 
             });
@@ -509,6 +509,49 @@ exports.list_event_time_attendees = function(req, res, next) {
 
 }
 
+exports.enable_events = function(req, res, next) {
+
+    var aid = req.session.aid;
+
+    var event_id = req.params.event_id;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        conn.query(
+            "UPDATE `heroku_8fddb363146ffaf`.`event`  " +
+            "SET `State`='1' " +
+            "WHERE `EID`= ?; ", [event_id],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query at enable_events");
+                }
+
+                if (results.changedRows) {
+
+                    conn.query(
+                        "INSERT INTO `heroku_8fddb363146ffaf`.`event_log` (`EID`, `AID`, `Log` ) " +
+                        "VALUES (?, ?, ?) ", [event_id, aid, "enabled"],
+                        function(err, results, fields) {
+                            if (err) {
+                                console.log(err);
+                                return next("Mysql error, check your query at enable_events log");
+                            }
+                        });
+
+                    res.status(200).json({ "isSuccess": true, "message": "Event enabled." });
+
+                } else {
+                    res.status(400).json({ "isSuccess": false, "message": "Cannot enable event." });
+                }
+
+            });
+    });
+
+}
+
 exports.disable_events = function(req, res, next) {
 
     var aid = req.session.aid;
@@ -533,7 +576,7 @@ exports.disable_events = function(req, res, next) {
 
                     conn.query(
                         "INSERT INTO `heroku_8fddb363146ffaf`.`event_log` (`EID`, `AID`, `Log` ) " +
-                        "VALUES (?, ?, ?) ", [event_id, aid, "deleted"],
+                        "VALUES (?, ?, ?) ", [event_id, aid, "disabled"],
                         function(err, results, fields) {
                             if (err) {
                                 console.log(err);
@@ -541,10 +584,10 @@ exports.disable_events = function(req, res, next) {
                             }
                         });
 
-                    res.status(200).json({ "isSuccess": true, "message": "Event deleted." });
+                    res.status(200).json({ "isSuccess": true, "message": "Event disabled." });
 
                 } else {
-                    res.status(400).json({ "isSuccess": false, "message": "Cannot delete event." });
+                    res.status(400).json({ "isSuccess": false, "message": "Cannot disable event." });
                 }
 
             });
@@ -821,6 +864,49 @@ exports.edit_games = function(req, res, next) {
 
 }
 
+exports.enable_games = function(req, res, next) {
+
+    var aid = req.session.aid;
+
+    var game_id = req.params.game_id;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        conn.query(
+            "UPDATE `heroku_8fddb363146ffaf`.`game`  " +
+            "SET `State`='1' " +
+            "WHERE `GID`= ?; ", [game_id],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query at enable_games");
+                }
+
+                if (results.changedRows) {
+
+                    conn.query(
+                        "INSERT INTO `heroku_8fddb363146ffaf`.`game_log` (`GID`, `AID`, `Log` ) " +
+                        "VALUES (?, ?, ?) ", [game_id, aid, "enabled"],
+                        function(err, results, fields) {
+                            if (err) {
+                                console.log(err);
+                                return next("Mysql error, check your query at enable_games log");
+                            }
+                        });
+
+                    res.status(200).json({ "isSuccess": true, "message": "Game enabled." });
+
+                } else {
+                    res.status(400).json({ "isSuccess": false, "message": "Cannot enable game." });
+                }
+
+            });
+    });
+
+}
+
 exports.disable_games = function(req, res, next) {
 
     var aid = req.session.aid;
@@ -845,7 +931,7 @@ exports.disable_games = function(req, res, next) {
 
                     conn.query(
                         "INSERT INTO `heroku_8fddb363146ffaf`.`game_log` (`GID`, `AID`, `Log` ) " +
-                        "VALUES (?, ?, ?) ", [game_id, aid, "deleted"],
+                        "VALUES (?, ?, ?) ", [game_id, aid, "disabled"],
                         function(err, results, fields) {
                             if (err) {
                                 console.log(err);
@@ -853,10 +939,10 @@ exports.disable_games = function(req, res, next) {
                             }
                         });
 
-                    res.status(200).json({ "isSuccess": true, "message": "Game deleted." });
+                    res.status(200).json({ "isSuccess": true, "message": "Game disabled." });
 
                 } else {
-                    res.status(400).json({ "isSuccess": false, "message": "Cannot delete game." });
+                    res.status(400).json({ "isSuccess": false, "message": "Cannot disable game." });
                 }
 
             });
