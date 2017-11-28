@@ -581,6 +581,30 @@ exports.list_student_played_games = function(req, res, next) {
 
 }
 
+exports.student_points = function(req, res, next) {
+
+    var sid = req.session.sid;
+
+    req.getConnection(function(err, conn) {
+
+        if (err) return next("Cannot Connect");
+
+        conn.query(
+            "SELECT SUM(Point) as Points " +
+            "FROM heroku_8fddb363146ffaf.student_play_game " +
+            "WHERE sid = ?; ", [sid],
+            function(err, results, fields) {
+                if (err) {
+                    console.log(err);
+                    return next("Mysql error, check your query");
+                }
+
+                res.status(200).json(results);
+            });
+    });
+
+}
+
 exports.list_games = function(req, res, next) {
 
     req.getConnection(function(err, conn) {

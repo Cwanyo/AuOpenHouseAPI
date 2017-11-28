@@ -62,6 +62,9 @@ router.route("/upgames")
 router.route("/mygames")
     .get(student.list_student_played_games);
 
+router.route("/mygames/points")
+    .get(student.student_points);
+
 router.route("/mygames")
     .post(student.student_play_game);
 
