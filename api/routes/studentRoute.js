@@ -19,7 +19,6 @@ router.route("/logout")
 //All below routes requires to set MYSQL time zone offset to Thailand (+07:00)
 router.use(student.SetTimeZone);
 
-//TODO - un comment this bypass!
 //All below routes requires user authentication
 router.use(student.Authentication);
 
@@ -62,27 +61,26 @@ router.route("/upgames")
 router.route("/mygames")
     .get(student.list_student_played_games);
 
-router.route("/mygames/points")
-    .get(student.student_points);
-
+//TODO - sum the game points and put it in student entity 
 router.route("/mygames")
     .post(student.student_play_game);
 
 router.route("/mygames/:game_id")
-    .get(student.mygame_intfo);
+    .get(student.mygame_info);
+
+router.route("/mygames/points")
+    .get(student.student_points);
+
+router.route("/games")
+    .get(student.list_games);
+
+router.route("/games/:game_id")
+    .get(student.game_info);
 
 router.route("/games/:game_id/questions")
     .get(student.game_questions);
 
 router.route("/games/:game_id/questions/:question_id/choices")
     .get(student.answer_choices);
-
-//TODO - have to find better ways to check the answer instead of sending the points that calc in client side
-//TODO - sum the game points and put it in student entity 
-router.route("/games")
-    .get(student.list_games);
-
-router.route("/games/:game_id")
-    .get(student.game_info);
 
 module.exports = router;

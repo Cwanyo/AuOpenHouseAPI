@@ -529,7 +529,7 @@ exports.student_play_game = function(req, res, next) {
 
 }
 
-exports.mygame_intfo = function(req, res, next) {
+exports.mygame_info = function(req, res, next) {
 
     var sid = req.session.sid;
     var game_id = req.params.game_id;

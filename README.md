@@ -1,5 +1,8 @@
-# Au Open House API
+# AU Open House API
+This RESTful web services is a part of the term project that created by Assumption University students.
 
+# Description
+The RESTful web services that allow the clients to access the database information.
 
 # List of Available API
 
@@ -18,7 +21,7 @@ URL : https://auopenhouse.herokuapp.com/api/student/
 | Get faculty details | GET | /faculties/:faculty_id | faculty_id=[int] | - |
 | Get list of all majors in the faculty | GET | /faculties/:faculty_id/majors | faculty_id=[int] | - |
 | Get major details in the faculty | GET | /faculties/:faculty_id/majors/:major_id | faculty_id=[int]<br>major_id=[int] | - |
-| Get list of upcoming events<br>(Between time start 1 hour and time end) | GET | /upevents | - | - |
+| Get list of upcoming events<br>(Between time start 2 hour and time end) | GET | /upevents | - | - |
 | Get list of my events<br>(Student attended events) | GET | /myevents | - | - |
 | Check event attendance | Get | /myevents/:time_id | time_id=[int] | - |
 | Join the event | POST | /myevents/:time_id | time_id=[int] | - |
@@ -27,10 +30,14 @@ URL : https://auopenhouse.herokuapp.com/api/student/
 | Get event details | GET | /events/:event_id | event_id=[int] | - |
 | Get list of upcoming games<br>(Between time start and time end) | GET | /upgames | - | - |
 | Get list of my games<br>(Student played games) | GET | /mygames | - | - |
-| Play the game | POST | /mygames/:game_id/play | game_id=[int] | points=[int] |
+| Play the game | POST | /mygames | - | answer=[json] |
+| Get my games details | GET | /mygames/:game_id | game_id=[int] | - |
+| Get total game points | GET | /mygames/points | - | - |
 | Get list of all games | GET | /games | - | - |
 | Get game details | GET | /games/:game_id | game_id=[int] | - |
-| Get game questions and answer | GET | /games/:game_id/questions | game_id=[int] | - |
+| Get list of question in the game | GET | /games/:game_id/questions | game_id=[int] | - |
+| Get list of answer choices in the game | GET | /games/:game_id/questions/:question_id/choices | game_id=[int]<br>question_id=[int] | - |
+
 
 ## Authority API
 
@@ -63,3 +70,9 @@ URL : https://auopenhouse.herokuapp.com/api/authority/
 | Get list of all authorities account<br>(According to approval status) | GET | /authorities/:approval_status | approval_status=[int] | - |
 | Set authority account approval status | PATCH | /authorities | - | authority=[json] |
 | Delete authority account | DELETE | /authorities/:authority_id | authority_id=[int] | - |
+
+# Architecture
+- Node.js & Express - Web framework
+- Firebase - Used for authentication (Verify ID Tokens)
+
+# Contributors
