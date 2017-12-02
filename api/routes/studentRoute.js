@@ -68,7 +68,7 @@ router.route("/mygames")
 router.route("/mygames/:game_id")
     .get(student.mygame_info);
 
-router.route("/mygames/points")
+router.route("/mygamepoints")
     .get(student.student_points);
 
 router.route("/games")
