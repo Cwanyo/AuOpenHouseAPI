@@ -72,8 +72,8 @@ URL : https://auopenhouse.herokuapp.com/api/authority/
 | Delete authority account | DELETE | /authorities/:authority_id | authority_id=[int] | - |
 
 # Architecture
-- Node.js & Express - Web framework
-- Firebase - Used for authentication (Verify ID Tokens)
+- [Node.js](https://nodejs.org/en/) & [Express](https://expressjs.com/) - Web framework
+- [Firebase](https://firebase.google.com/) - Used for authentication ([Verify ID Tokens](https://firebase.google.com/docs/auth/admin/verify-id-tokens))
 
 # Contributors
 - Pannachet Lertananta
