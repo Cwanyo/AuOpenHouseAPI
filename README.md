@@ -76,3 +76,10 @@ URL : https://auopenhouse.herokuapp.com/api/authority/
 - Firebase - Used for authentication (Verify ID Tokens)
 
 # Contributors
+Pannachet Lertananta
+Rajanart Incharoensakdi
+Vorapat Phorncharroenroj
+Sai Kham Sheng
+Chatchawan Yoojuie
+Natthakul Boonmee
+Chinnawat Wongpatamajaroen
