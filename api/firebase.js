@@ -14,7 +14,7 @@ var firebase = require("firebase-admin"),
 
 firebase.initializeApp({
     credential: firebase.credential.cert(serviceAccount),
-    databaseURL: "https://auopenhouse-wvn.firebaseio.com"
+    databaseURL: process.env.FIREBASE_DATABASE_URL
 });
 
 module.exports = firebase;
