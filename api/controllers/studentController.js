@@ -2,6 +2,7 @@
 
 /*Firebase*/
 var firebase = require("../firebase");
+var dbName = process.env.DATABASE_NAME;
 
 exports.Authentication = function(req, res, next) {
     if (req.session.sid) {
@@ -59,7 +60,7 @@ exports.login = function(req, res, next) {
                 if (err) return next("Cannot Connect");
 
                 conn.query(
-                    "INSERT INTO `heroku_8fddb363146ffaf`.`student` (`SID`, `Name`, `Image`, `Email`) " +
+                    "INSERT INTO `" + dbName + "`.`student` (`SID`, `Name`, `Image`, `Email`) " +
                     "VALUES (?, ?, ?, ?) " +
                     "ON DUPLICATE KEY UPDATE Name = ?, Image = ?, Email = ?; ", [data.sid, data.name, data.image, data.email, data.name, data.image, data.email],
                     function(err, results, fields) {
@@ -99,7 +100,7 @@ exports.list_faculties = function(req, res, next) {
 
         conn.query(
             "SELECT * " +
-            "FROM heroku_8fddb363146ffaf.faculty; ",
+            "FROM " + dbName + ".faculty; ",
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
@@ -122,7 +123,7 @@ exports.faculty_info = function(req, res, next) {
 
         conn.query(
             "SELECT * " +
-            "FROM heroku_8fddb363146ffaf.faculty " +
+            "FROM " + dbName + ".faculty " +
             "WHERE fid = ?; ", [faculty_id],
             function(err, results, fields) {
                 if (err) {
@@ -146,7 +147,7 @@ exports.list_majors = function(req, res, next) {
 
         conn.query(
             "SELECT * " +
-            "FROM heroku_8fddb363146ffaf.major " +
+            "FROM " + dbName + ".major " +
             "WHERE fid = ?; ", [faculty_id],
             function(err, results, fields) {
                 if (err) {
@@ -171,7 +172,7 @@ exports.major_info = function(req, res, next) {
 
         conn.query(
             "SELECT * " +
-            "FROM heroku_8fddb363146ffaf.major " +
+            "FROM " + dbName + ".major " +
             "WHERE fid = ? and mid = ?; ", [faculty_id, major_id],
             function(err, results, fields) {
                 if (err) {
@@ -195,11 +196,11 @@ exports.list_upcoming_events = function(req, res, next) {
             "SELECT EID, Name, Info, Image, State, Location_Latitude, Location_Longitude, ef.FID, ef.MID, Faculty_Name, Major_Name, ef.TID, Time_Start, Time_End, Icon " +
             "FROM (SELECT EID, Name, Info, Image, State, Location_Latitude, Location_Longitude, e.FID, e.MID, Faculty_Name, e.TID, Time_Start, Time_End, Icon " +
             "FROM (SELECT EID, Name, Info, Image, State, Location_Latitude, Location_Longitude, MID, FID, TID, Time_Start, Time_End " +
-            "FROM heroku_8fddb363146ffaf.event NATURAL JOIN heroku_8fddb363146ffaf.event_time WHERE CURRENT_TIMESTAMP() BETWEEN Time_Start - INTERVAL 2 HOUR AND Time_End AND State = 1) AS e " +
+            "FROM " + dbName + ".event NATURAL JOIN " + dbName + ".event_time WHERE CURRENT_TIMESTAMP() BETWEEN Time_Start - INTERVAL 2 HOUR AND Time_End AND State = 1) AS e " +
             "LEFT JOIN (SELECT FID, Name AS Faculty_Name, Icon " +
-            "FROM heroku_8fddb363146ffaf.faculty) AS f ON e.fid = f.fid) AS ef " +
+            "FROM " + dbName + ".faculty) AS f ON e.fid = f.fid) AS ef " +
             "LEFT JOIN (SELECT MID, Name AS Major_Name " +
-            "FROM heroku_8fddb363146ffaf.major) AS m ON ef.mid = m.mid " +
+            "FROM " + dbName + ".major) AS m ON ef.mid = m.mid " +
             "ORDER BY ef.FID ASC; ",
             function(err, results, fields) {
                 if (err) {
@@ -223,10 +224,10 @@ exports.list_student_attended_events = function(req, res, next) {
 
         conn.query(
             "SELECT EID, Name, Info, Image, State, Location_Latitude, Location_Longitude, FID, MID, TID, Time_Start, Time_End " +
-            "FROM heroku_8fddb363146ffaf.event_time NATURAL JOIN heroku_8fddb363146ffaf.event " +
+            "FROM " + dbName + ".event_time NATURAL JOIN " + dbName + ".event " +
             "WHERE tid IN ( " +
             "SELECT tid " +
-            "FROM heroku_8fddb363146ffaf.student_attend_event_time " +
+            "FROM " + dbName + ".student_attend_event_time " +
             "WHERE sid = ?) " +
             "ORDER BY Time_Start ASC; ", [sid],
             function(err, results, fields) {
@@ -252,7 +253,7 @@ exports.myevent_info = function(req, res, next) {
 
         conn.query(
             "SELECT * " +
-            "FROM heroku_8fddb363146ffaf.student_attend_event_time " +
+            "FROM " + dbName + ".student_attend_event_time " +
             "Where sid = ? and tid = ?; ", [sid, time_id],
             function(err, results, fields) {
                 if (err) {
@@ -277,7 +278,7 @@ exports.student_join_event = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         conn.query(
-            "INSERT INTO `heroku_8fddb363146ffaf`.`student_attend_event_time` (`SID`, `TID`) " +
+            "INSERT INTO `" + dbName + "`.`student_attend_event_time` (`SID`, `TID`) " +
             "VALUES (?, ?); ", [sid, time_id],
             function(err, results, fields) {
                 if (err) {
@@ -312,7 +313,7 @@ exports.student_leave_event = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         conn.query(
-            "DELETE FROM `heroku_8fddb363146ffaf`.`student_attend_event_time` " +
+            "DELETE FROM `" + dbName + "`.`student_attend_event_time` " +
             "WHERE `SID`= ? and `TID` = ?; ", [sid, time_id],
             function(err, results, fields) {
                 if (err) {
@@ -338,7 +339,7 @@ exports.list_events = function(req, res, next) {
 
         conn.query(
             "SELECT * " +
-            "FROM heroku_8fddb363146ffaf.event; ",
+            "FROM " + dbName + ".event; ",
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
@@ -361,7 +362,7 @@ exports.event_info = function(req, res, next) {
 
         conn.query(
             "SELECT * " +
-            "FROM heroku_8fddb363146ffaf.event " +
+            "FROM " + dbName + ".event " +
             "WHERE eid = ?; ", [event_id],
             function(err, results, fields) {
                 if (err) {
@@ -387,12 +388,12 @@ exports.list_upcoming_games = function(req, res, next) {
             "SELECT GID, Name, Info, Image, Time_Start, Time_End, State, Location_Latitude, Location_Longitude, ef.FID, ef.MID, Faculty_Name, Major_Name, Icon " +
             "FROM (SELECT GID, Name, Info, Image, Time_Start, Time_End, State, Location_Latitude, Location_Longitude, e.FID, e.MID, Faculty_Name, Icon " +
             "FROM (SELECT GID, Name, Info, Image, Time_Start, Time_End, State, Location_Latitude, Location_Longitude, MID, FID " +
-            "FROM heroku_8fddb363146ffaf.game WHERE GID NOT IN (SELECT GID " +
-            "FROM heroku_8fddb363146ffaf.student_play_game WHERE sid = ?) AND CURRENT_TIMESTAMP() BETWEEN Time_Start AND Time_End AND State = 1) AS e " +
+            "FROM " + dbName + ".game WHERE GID NOT IN (SELECT GID " +
+            "FROM " + dbName + ".student_play_game WHERE sid = ?) AND CURRENT_TIMESTAMP() BETWEEN Time_Start AND Time_End AND State = 1) AS e " +
             "LEFT JOIN (SELECT FID, Name AS Faculty_Name, Icon " +
-            "FROM heroku_8fddb363146ffaf.faculty) AS f ON e.fid = f.fid) AS ef " +
+            "FROM " + dbName + ".faculty) AS f ON e.fid = f.fid) AS ef " +
             "LEFT JOIN (SELECT MID, Name AS Major_Name " +
-            "FROM heroku_8fddb363146ffaf.major) AS m ON ef.mid = m.mid " +
+            "FROM " + dbName + ".major) AS m ON ef.mid = m.mid " +
             "WHERE state = 1 " +
             "ORDER BY ef.FID ASC; ", [sid],
             function(err, results, fields) {
@@ -417,7 +418,7 @@ exports.game_questions = function(req, res, next) {
 
         conn.query(
             "SELECT QID, GID, Question " +
-            "FROM heroku_8fddb363146ffaf.game_question " +
+            "FROM " + dbName + ".game_question " +
             "WHERE gid = ?; ", [game_id],
             function(err, results, fields) {
                 if (err) {
@@ -442,7 +443,7 @@ exports.answer_choices = function(req, res, next) {
 
         conn.query(
             "SELECT * " +
-            "FROM heroku_8fddb363146ffaf.answer_choice " +
+            "FROM " + dbName + ".answer_choice " +
             "WHERE qid = ?; ", [question_id],
             function(err, results, fields) {
                 if (err) {
@@ -476,7 +477,7 @@ exports.student_play_game = function(req, res, next) {
 
         conn.query(
             "SELECT QID, Right_Choice " +
-            "FROM heroku_8fddb363146ffaf.game_question " +
+            "FROM " + dbName + ".game_question " +
             "WHERE gid = ? ", [answer.GID],
             function(err, results, fields) {
                 if (err) {
@@ -507,7 +508,7 @@ exports.student_play_game = function(req, res, next) {
                     });
 
                     conn.query(
-                        "INSERT INTO `heroku_8fddb363146ffaf`.`student_play_game` (`SID`, `GID`, `Point`) " +
+                        "INSERT INTO `" + dbName + "`.`student_play_game` (`SID`, `GID`, `Point`) " +
                         "VALUES (?, ?, ?); ", [sid, answer.GID, point],
                         function(err, results, fields) {
                             if (err) {
@@ -540,7 +541,7 @@ exports.mygame_info = function(req, res, next) {
 
         conn.query(
             "SELECT * " +
-            "FROM heroku_8fddb363146ffaf.student_play_game " +
+            "FROM " + dbName + ".student_play_game " +
             "Where sid = ? and gid = ?; ", [sid, game_id],
             function(err, results, fields) {
                 if (err) {
@@ -564,10 +565,10 @@ exports.list_student_played_games = function(req, res, next) {
 
         conn.query(
             "SELECT GID, Name, Info, Image, Time_Start, Time_End, State, Location_Latitude, Location_Longitude, MID, FID " +
-            "FROM heroku_8fddb363146ffaf.game " +
+            "FROM " + dbName + ".game " +
             "WHERE GID IN ( " +
             "SELECT GID " +
-            "FROM heroku_8fddb363146ffaf.student_play_game " +
+            "FROM " + dbName + ".student_play_game " +
             "WHERE sid = ?);", [sid],
             function(err, results, fields) {
                 if (err) {
@@ -591,7 +592,7 @@ exports.student_points = function(req, res, next) {
 
         conn.query(
             "SELECT SUM(Point) as Points " +
-            "FROM heroku_8fddb363146ffaf.student_play_game " +
+            "FROM " + dbName + ".student_play_game " +
             "WHERE sid = ?; ", [sid],
             function(err, results, fields) {
                 if (err) {
@@ -613,7 +614,7 @@ exports.list_games = function(req, res, next) {
 
         conn.query(
             "SELECT * " +
-            "FROM heroku_8fddb363146ffaf.game; ",
+            "FROM " + dbName + ".game; ",
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
@@ -636,7 +637,7 @@ exports.game_info = function(req, res, next) {
 
         conn.query(
             "SELECT * " +
-            "FROM heroku_8fddb363146ffaf.game " +
+            "FROM " + dbName + ".game " +
             "WHERE gid = ?; ", [game_id],
             function(err, results, fields) {
                 if (err) {

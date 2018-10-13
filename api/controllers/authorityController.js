@@ -2,6 +2,7 @@
 //TODO - replace return error 
 /*Firebase*/
 var firebase = require("../firebase");
+var dbName = process.env.DATABASE_NAME;
 
 exports.AuthenticationStaff = function(req, res, next) {
     if (req.session.aid) {
@@ -75,7 +76,7 @@ exports.login = function(req, res, next) {
 
                 conn.query(
                     "SELECT * " +
-                    "FROM heroku_8fddb363146ffaf.authority " +
+                    "FROM " + dbName + ".authority " +
                     "WHERE aid = ?;", [data.aid],
                     function(err, results, fields) {
                         if (err) {
@@ -159,7 +160,7 @@ exports.request = function(req, res, next) {
 
                 conn.query(
                     "SELECT * " +
-                    "FROM heroku_8fddb363146ffaf.authority " +
+                    "FROM " + dbName + ".authority " +
                     "WHERE aid = ?;", [data.aid],
                     function(err, results, fields) {
                         if (err) {
@@ -183,7 +184,7 @@ exports.request = function(req, res, next) {
                             //OR
                             //if request already exits but not approved yet, user can change the role, faculty or major
                             conn.query(
-                                "INSERT INTO `heroku_8fddb363146ffaf`.`authority` (`AID`, `Name`, `Image`, `Email`, `Role`, `MID`, `FID`) " +
+                                "INSERT INTO `" + dbName + "`.`authority` (`AID`, `Name`, `Image`, `Email`, `Role`, `MID`, `FID`) " +
                                 "VALUES (?, ?, ?, ?, ?, ?, ?) " +
                                 "ON DUPLICATE KEY UPDATE Role = ?, MID = ?, FID = ?; ", [data.aid, data.name, data.image, data.email, request.Role, request.MID, request.FID, request.Role, request.MID, request.FID],
                                 function(err, results, fields) {
@@ -213,7 +214,7 @@ exports.list_faculties = function(req, res, next) {
 
         conn.query(
             "SELECT * " +
-            "FROM heroku_8fddb363146ffaf.faculty; ",
+            "FROM " + dbName + ".faculty; ",
             function(err, results, fields) {
                 if (err) {
                     console.log(err);
@@ -236,7 +237,7 @@ exports.list_majors = function(req, res, next) {
 
         conn.query(
             "SELECT * " +
-            "FROM heroku_8fddb363146ffaf.major " +
+            "FROM " + dbName + ".major " +
             "WHERE fid = ?; ", [faculty_id],
             function(err, results, fields) {
                 if (err) {
@@ -261,11 +262,11 @@ exports.list_events = function(req, res, next) {
         conn.query(
             "SELECT EID, Name, Info, Image, State, Location_Latitude, Location_Longitude, ef.FID, ef.MID, Faculty_Name, Major_Name, Icon " +
             "FROM (SELECT EID, Name, Info, Image, State, Location_Latitude, Location_Longitude, e.FID, e.MID, Faculty_Name, Icon " +
-            "FROM heroku_8fddb363146ffaf.event AS e LEFT JOIN ( " +
+            "FROM " + dbName + ".event AS e LEFT JOIN ( " +
             "SELECT FID, Name AS Faculty_Name, Icon " +
-            "FROM heroku_8fddb363146ffaf.faculty) AS f ON e.fid = f.fid) AS ef LEFT JOIN ( " +
+            "FROM " + dbName + ".faculty) AS f ON e.fid = f.fid) AS ef LEFT JOIN ( " +
             "SELECT MID, Name AS Major_Name " +
-            "FROM heroku_8fddb363146ffaf.major) AS m ON ef.mid = m.mid " +
+            "FROM " + dbName + ".major) AS m ON ef.mid = m.mid " +
             "WHERE state = ? " +
             "ORDER BY ef.FID ASC; ", [state],
             function(err, results, fields) {
@@ -300,7 +301,7 @@ exports.add_events = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         conn.query(
-            "INSERT INTO `heroku_8fddb363146ffaf`.`event` (`Name`, `Info`, `Image`, `State`, `Location_Latitude`, `Location_Longitude`, `MID`, `FID`) " +
+            "INSERT INTO `" + dbName + "`.`event` (`Name`, `Info`, `Image`, `State`, `Location_Latitude`, `Location_Longitude`, `MID`, `FID`) " +
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?); ", [event.Name, event.Info, event.Image, event.State, event.Location_Latitude, event.Location_Longitude, event.MID, event.FID],
             function(err, results, fields) {
                 if (err) {
@@ -312,7 +313,7 @@ exports.add_events = function(req, res, next) {
 
                     event.Event_Time.forEach(t => {
                         conn.query(
-                            "INSERT INTO `heroku_8fddb363146ffaf`.`event_time` (`EID`, `Time_Start`, `Time_End`) " +
+                            "INSERT INTO `" + dbName + "`.`event_time` (`EID`, `Time_Start`, `Time_End`) " +
                             "VALUES (?, ?, ?); ", [results.insertId, t.Time_Start, t.Time_End],
                             function(err, results, fields) {
                                 if (err) {
@@ -323,7 +324,7 @@ exports.add_events = function(req, res, next) {
                     });
 
                     conn.query(
-                        "INSERT INTO `heroku_8fddb363146ffaf`.`event_log` (`EID`, `AID`, `Log` ) " +
+                        "INSERT INTO `" + dbName + "`.`event_log` (`EID`, `AID`, `Log` ) " +
                         "VALUES (?, ?, ?); ", [results.insertId, aid, "created"],
                         function(err, results, fields) {
                             if (err) {
@@ -363,7 +364,7 @@ exports.edit_events = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         conn.query(
-            "UPDATE `heroku_8fddb363146ffaf`.`event` " +
+            "UPDATE `" + dbName + "`.`event` " +
             "SET `Name`= ?, `Info`= ?, `Image`= ?, `State`= ?, `Location_Latitude`= ?, `Location_Longitude`= ?, `MID`= ?, `FID`= ? " +
             "WHERE `EID`= ?;", [event.Name, event.Info, event.Image, event.State, event.Location_Latitude, event.Location_Longitude, event.MID, event.FID, event.EID],
             function(err, results, fields) {
@@ -376,7 +377,7 @@ exports.edit_events = function(req, res, next) {
                     if (t.TID) {
                         //Edit time
                         conn.query(
-                            "UPDATE `heroku_8fddb363146ffaf`.`event_time` " +
+                            "UPDATE `" + dbName + "`.`event_time` " +
                             "SET `Time_Start`= ?, `Time_End`= ? " +
                             "WHERE `TID` = ?; ", [t.Time_Start, t.Time_End, t.TID],
                             function(err, results, fields) {
@@ -388,7 +389,7 @@ exports.edit_events = function(req, res, next) {
                     } else {
                         //Add new time
                         conn.query(
-                            "INSERT INTO `heroku_8fddb363146ffaf`.`event_time` (`EID`, `Time_Start`, `Time_End`) " +
+                            "INSERT INTO `" + dbName + "`.`event_time` (`EID`, `Time_Start`, `Time_End`) " +
                             "VALUES (?, ?, ?); ", [event.EID, t.Time_Start, t.Time_End],
                             function(err, results, fields) {
                                 if (err) {
@@ -400,7 +401,7 @@ exports.edit_events = function(req, res, next) {
                 });
 
                 conn.query(
-                    "INSERT INTO `heroku_8fddb363146ffaf`.`event_log` (`EID`, `AID`, `Log` ) " +
+                    "INSERT INTO `" + dbName + "`.`event_log` (`EID`, `AID`, `Log` ) " +
                     "VALUES (?, ?, ?); ", [event.EID, aid, "edited"],
                     function(err, results, fields) {
                         if (err) {
@@ -428,7 +429,7 @@ exports.disable_event_time = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         conn.query(
-            "UPDATE `heroku_8fddb363146ffaf`.`event_time`  " +
+            "UPDATE `" + dbName + "`.`event_time`  " +
             "SET `State`='0' " +
             "WHERE `EID`= ? AND `TID`= ?; ", [event_id, time_id],
             function(err, results, fields) {
@@ -440,7 +441,7 @@ exports.disable_event_time = function(req, res, next) {
                 if (results.changedRows) {
 
                     conn.query(
-                        "INSERT INTO `heroku_8fddb363146ffaf`.`event_log` (`EID`, `AID`, `Log` ) " +
+                        "INSERT INTO `" + dbName + "`.`event_log` (`EID`, `AID`, `Log` ) " +
                         "VALUES (?, ?, ?) ", [event_id, aid, "disabled TID: " + time_id],
                         function(err, results, fields) {
                             if (err) {
@@ -470,7 +471,7 @@ exports.event_times = function(req, res, next) {
 
         conn.query(
             "SELECT * " +
-            "FROM heroku_8fddb363146ffaf.event_time " +
+            "FROM " + dbName + ".event_time " +
             "WHERE eid = ? AND state = 1; ", [event_id],
             function(err, results, fields) {
                 if (err) {
@@ -495,7 +496,7 @@ exports.list_event_time_attendees = function(req, res, next) {
 
         conn.query(
             "SELECT * " +
-            "FROM heroku_8fddb363146ffaf.student_attend_event_time NATURAL JOIN heroku_8fddb363146ffaf.student " +
+            "FROM " + dbName + ".student_attend_event_time NATURAL JOIN " + dbName + ".student " +
             "WHERE tid = ?; ", [time_id],
             function(err, results, fields) {
                 if (err) {
@@ -520,7 +521,7 @@ exports.enable_events = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         conn.query(
-            "UPDATE `heroku_8fddb363146ffaf`.`event`  " +
+            "UPDATE `" + dbName + "`.`event`  " +
             "SET `State`='1' " +
             "WHERE `EID`= ?; ", [event_id],
             function(err, results, fields) {
@@ -532,7 +533,7 @@ exports.enable_events = function(req, res, next) {
                 if (results.changedRows) {
 
                     conn.query(
-                        "INSERT INTO `heroku_8fddb363146ffaf`.`event_log` (`EID`, `AID`, `Log` ) " +
+                        "INSERT INTO `" + dbName + "`.`event_log` (`EID`, `AID`, `Log` ) " +
                         "VALUES (?, ?, ?) ", [event_id, aid, "enabled"],
                         function(err, results, fields) {
                             if (err) {
@@ -563,7 +564,7 @@ exports.disable_events = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         conn.query(
-            "UPDATE `heroku_8fddb363146ffaf`.`event`  " +
+            "UPDATE `" + dbName + "`.`event`  " +
             "SET `State`='0' " +
             "WHERE `EID`= ?; ", [event_id],
             function(err, results, fields) {
@@ -575,7 +576,7 @@ exports.disable_events = function(req, res, next) {
                 if (results.changedRows) {
 
                     conn.query(
-                        "INSERT INTO `heroku_8fddb363146ffaf`.`event_log` (`EID`, `AID`, `Log` ) " +
+                        "INSERT INTO `" + dbName + "`.`event_log` (`EID`, `AID`, `Log` ) " +
                         "VALUES (?, ?, ?) ", [event_id, aid, "disabled"],
                         function(err, results, fields) {
                             if (err) {
@@ -606,11 +607,11 @@ exports.list_games = function(req, res, next) {
         conn.query(
             "SELECT GID, Name, Info, Image, Time_Start, Time_End, State, Location_Latitude, Location_Longitude, ef.FID, ef.MID, Faculty_Name, Major_Name, Icon " +
             "FROM (SELECT GID, Name, Info, Image, Time_Start, Time_End, State, Location_Latitude, Location_Longitude, e.FID, e.MID, Faculty_Name, Icon " +
-            "FROM heroku_8fddb363146ffaf.game AS e LEFT JOIN ( " +
+            "FROM " + dbName + ".game AS e LEFT JOIN ( " +
             "SELECT FID, Name AS Faculty_Name, Icon " +
-            "FROM heroku_8fddb363146ffaf.faculty) AS f ON e.fid = f.fid) AS ef LEFT JOIN ( " +
+            "FROM " + dbName + ".faculty) AS f ON e.fid = f.fid) AS ef LEFT JOIN ( " +
             "SELECT MID, Name AS Major_Name " +
-            "FROM heroku_8fddb363146ffaf.major) AS m ON ef.mid = m.mid " +
+            "FROM " + dbName + ".major) AS m ON ef.mid = m.mid " +
             "WHERE state = ? " +
             "ORDER BY ef.FID ASC; ", [state],
             function(err, results, fields) {
@@ -645,7 +646,7 @@ exports.add_games = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         conn.query(
-            "INSERT INTO `heroku_8fddb363146ffaf`.`game` (`Name`, `Info`, `Image`, `State`, `Time_Start`, `Time_End`, `Location_Latitude`, `Location_Longitude`, `MID`, `FID`) " +
+            "INSERT INTO `" + dbName + "`.`game` (`Name`, `Info`, `Image`, `State`, `Time_Start`, `Time_End`, `Location_Latitude`, `Location_Longitude`, `MID`, `FID`) " +
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?); ", [game.Name, game.Info, game.Image, game.State, game.Time_Start, game.Time_End, game.Location_Latitude, game.Location_Longitude, game.MID, game.FID],
             function(err, results, fields) {
                 if (err) {
@@ -657,7 +658,7 @@ exports.add_games = function(req, res, next) {
 
                     game.Game_Question.forEach(q => {
                         conn.query(
-                            "INSERT INTO `heroku_8fddb363146ffaf`.`game_question` (`GID`, `Question`) " +
+                            "INSERT INTO `" + dbName + "`.`game_question` (`GID`, `Question`) " +
                             "VALUES (?, ?); ", [results.insertId, q.Question],
                             function(err, results, fields) {
                                 if (err) {
@@ -676,7 +677,7 @@ exports.add_games = function(req, res, next) {
                                         var c = CountChoice;
 
                                         conn.query(
-                                            "INSERT INTO `heroku_8fddb363146ffaf`.`answer_choice` (`QID`, `Choice`) " +
+                                            "INSERT INTO `" + dbName + "`.`answer_choice` (`QID`, `Choice`) " +
                                             "VALUES (?, ?); ", [results.insertId, a.Choice],
                                             function(err, results, fields) {
                                                 if (err) {
@@ -686,7 +687,7 @@ exports.add_games = function(req, res, next) {
                                                 //if current choice = rightchoice
                                                 if (c == RightChoice) {
                                                     conn.query(
-                                                        "UPDATE `heroku_8fddb363146ffaf`.`game_question` " +
+                                                        "UPDATE `" + dbName + "`.`game_question` " +
                                                         "SET `Right_Choice`= ? " +
                                                         "WHERE `QID`= ? ", [results.insertId, QID],
                                                         function(err, results, fields) {
@@ -704,7 +705,7 @@ exports.add_games = function(req, res, next) {
                     });
 
                     conn.query(
-                        "INSERT INTO `heroku_8fddb363146ffaf`.`game_log` (`GID`, `AID`, `Log` ) " +
+                        "INSERT INTO `" + dbName + "`.`game_log` (`GID`, `AID`, `Log` ) " +
                         "VALUES (?, ?, ?); ", [results.insertId, aid, "created"],
                         function(err, results, fields) {
                             if (err) {
@@ -744,7 +745,7 @@ exports.edit_games = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         conn.query(
-            "UPDATE `heroku_8fddb363146ffaf`.`game` " +
+            "UPDATE `" + dbName + "`.`game` " +
             "SET `Name`= ?, `Info`= ?, `Image`= ?, `Time_Start`=?, `Time_End`=?, `State`= ?, `Location_Latitude`= ?, `Location_Longitude`= ?, `MID`= ?, `FID`= ? " +
             "WHERE `GID`= ?;", [game.Name, game.Info, game.Image, game.Time_Start, game.Time_End, game.State, game.Location_Latitude, game.Location_Longitude, game.MID, game.FID, game.GID],
             function(err, results, fields) {
@@ -756,7 +757,7 @@ exports.edit_games = function(req, res, next) {
                     if (q.QID) {
                         //Edit question
                         conn.query(
-                            "UPDATE `heroku_8fddb363146ffaf`.`game_question` " +
+                            "UPDATE `" + dbName + "`.`game_question` " +
                             "SET `Question`= ?, `Right_Choice`= ? " +
                             "WHERE `QID` = ?; ", [q.Question, q.Right_Choice, q.QID],
                             function(err, results, fields) {
@@ -772,7 +773,7 @@ exports.edit_games = function(req, res, next) {
                                     //create new var because inside func can't access
 
                                     conn.query(
-                                        "UPDATE `heroku_8fddb363146ffaf`.`answer_choice` " +
+                                        "UPDATE `" + dbName + "`.`answer_choice` " +
                                         "SET `Choice` = ? " +
                                         "WHERE `CID` = ? and `QID` = ?; ", [a.Choice, a.CID, QID],
                                         function(err, results, fields) {
@@ -783,7 +784,7 @@ exports.edit_games = function(req, res, next) {
                                             //if current choice = rightchoice
                                             if (a.CID == RightChoice) {
                                                 conn.query(
-                                                    "UPDATE `heroku_8fddb363146ffaf`.`game_question` " +
+                                                    "UPDATE `" + dbName + "`.`game_question` " +
                                                     "SET `Right_Choice`= ? " +
                                                     "WHERE `QID`= ? ", [RightChoice, QID],
                                                     function(err, results, fields) {
@@ -800,7 +801,7 @@ exports.edit_games = function(req, res, next) {
                     } else {
                         //Add new question
                         conn.query(
-                            "INSERT INTO `heroku_8fddb363146ffaf`.`game_question` (`GID`, `Question`) " +
+                            "INSERT INTO `" + dbName + "`.`game_question` (`GID`, `Question`) " +
                             "VALUES (?, ?); ", [game.GID, q.Question],
                             function(err, results, fields) {
                                 if (err) {
@@ -819,7 +820,7 @@ exports.edit_games = function(req, res, next) {
                                         var c = CountChoice;
 
                                         conn.query(
-                                            "INSERT INTO `heroku_8fddb363146ffaf`.`answer_choice` (`QID`, `Choice`) " +
+                                            "INSERT INTO `" + dbName + "`.`answer_choice` (`QID`, `Choice`) " +
                                             "VALUES (?, ?); ", [results.insertId, a.Choice],
                                             function(err, results, fields) {
                                                 if (err) {
@@ -829,7 +830,7 @@ exports.edit_games = function(req, res, next) {
                                                 //if current choice = rightchoice
                                                 if (c == RightChoice) {
                                                     conn.query(
-                                                        "UPDATE `heroku_8fddb363146ffaf`.`game_question` " +
+                                                        "UPDATE `" + dbName + "`.`game_question` " +
                                                         "SET `Right_Choice`= ? " +
                                                         "WHERE `QID`= ? ", [results.insertId, QID],
                                                         function(err, results, fields) {
@@ -848,7 +849,7 @@ exports.edit_games = function(req, res, next) {
                 });
 
                 conn.query(
-                    "INSERT INTO `heroku_8fddb363146ffaf`.`game_log` (`GID`, `AID`, `Log` ) " +
+                    "INSERT INTO `" + dbName + "`.`game_log` (`GID`, `AID`, `Log` ) " +
                     "VALUES (?, ?, ?); ", [game.GID, aid, "edited"],
                     function(err, results, fields) {
                         if (err) {
@@ -875,7 +876,7 @@ exports.enable_games = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         conn.query(
-            "UPDATE `heroku_8fddb363146ffaf`.`game`  " +
+            "UPDATE `" + dbName + "`.`game`  " +
             "SET `State`='1' " +
             "WHERE `GID`= ?; ", [game_id],
             function(err, results, fields) {
@@ -887,7 +888,7 @@ exports.enable_games = function(req, res, next) {
                 if (results.changedRows) {
 
                     conn.query(
-                        "INSERT INTO `heroku_8fddb363146ffaf`.`game_log` (`GID`, `AID`, `Log` ) " +
+                        "INSERT INTO `" + dbName + "`.`game_log` (`GID`, `AID`, `Log` ) " +
                         "VALUES (?, ?, ?) ", [game_id, aid, "enabled"],
                         function(err, results, fields) {
                             if (err) {
@@ -918,7 +919,7 @@ exports.disable_games = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         conn.query(
-            "UPDATE `heroku_8fddb363146ffaf`.`game`  " +
+            "UPDATE `" + dbName + "`.`game`  " +
             "SET `State`='0' " +
             "WHERE `GID`= ?; ", [game_id],
             function(err, results, fields) {
@@ -930,7 +931,7 @@ exports.disable_games = function(req, res, next) {
                 if (results.changedRows) {
 
                     conn.query(
-                        "INSERT INTO `heroku_8fddb363146ffaf`.`game_log` (`GID`, `AID`, `Log` ) " +
+                        "INSERT INTO `" + dbName + "`.`game_log` (`GID`, `AID`, `Log` ) " +
                         "VALUES (?, ?, ?) ", [game_id, aid, "disabled"],
                         function(err, results, fields) {
                             if (err) {
@@ -960,7 +961,7 @@ exports.game_questions = function(req, res, next) {
 
         conn.query(
             "SELECT * " +
-            "FROM heroku_8fddb363146ffaf.game_question " +
+            "FROM " + dbName + ".game_question " +
             "WHERE gid = ?; ", [game_id],
             function(err, results, fields) {
                 if (err) {
@@ -986,7 +987,7 @@ exports.delete_game_question = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         conn.query(
-            "DELETE FROM `heroku_8fddb363146ffaf`.`game_question` " +
+            "DELETE FROM `" + dbName + "`.`game_question` " +
             "WHERE `QID` = ? and `GID` = ?; ", [question_id, game_id],
             function(err, results, fields) {
                 if (err) {
@@ -997,7 +998,7 @@ exports.delete_game_question = function(req, res, next) {
                 if (results.affectedRows) {
 
                     conn.query(
-                        "INSERT INTO `heroku_8fddb363146ffaf`.`game_log` (`GID`, `AID`, `Log` ) " +
+                        "INSERT INTO `" + dbName + "`.`game_log` (`GID`, `AID`, `Log` ) " +
                         "VALUES (?, ?, ?); ", [game_id, aid, "deleted QID: " + question_id],
                         function(err, results, fields) {
                             if (err) {
@@ -1028,7 +1029,7 @@ exports.answer_choices = function(req, res, next) {
 
         conn.query(
             "SELECT * " +
-            "FROM heroku_8fddb363146ffaf.answer_choice " +
+            "FROM " + dbName + ".answer_choice " +
             "WHERE qid = ?; ", [question_id],
             function(err, results, fields) {
                 if (err) {
@@ -1053,11 +1054,11 @@ exports.list_authorities_account = function(req, res, next) {
         conn.query(
             "SELECT AID, Name, Image, Email, Role, Accout_Approval, ef.FID, ef.MID, Faculty_Name, Major_Name, Icon " +
             "FROM (SELECT AID, Name, Image, Email, Role, Accout_Approval, e.FID, e.MID, Faculty_Name, Icon " +
-            "FROM heroku_8fddb363146ffaf.authority AS e LEFT JOIN ( " +
+            "FROM " + dbName + ".authority AS e LEFT JOIN ( " +
             "SELECT FID, Name AS Faculty_Name, Icon " +
-            "FROM heroku_8fddb363146ffaf.faculty) AS f ON e.fid = f.fid) AS ef LEFT JOIN ( " +
+            "FROM " + dbName + ".faculty) AS f ON e.fid = f.fid) AS ef LEFT JOIN ( " +
             "SELECT MID, Name AS Major_Name " +
-            "FROM heroku_8fddb363146ffaf.major) AS m ON ef.mid = m.mid " +
+            "FROM " + dbName + ".major) AS m ON ef.mid = m.mid " +
             "WHERE Accout_Approval = ? " +
             "ORDER BY ef.FID ASC; ", [approval_status],
             function(err, results, fields) {
@@ -1090,7 +1091,7 @@ exports.edit_authority = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         conn.query(
-            "UPDATE `heroku_8fddb363146ffaf`.`authority` " +
+            "UPDATE `" + dbName + "`.`authority` " +
             "SET `Accout_Approval` = ? " +
             "WHERE `AID` = ?; ", [authority.Accout_Approval, authority.AID],
             function(err, results, fields) {
@@ -1114,7 +1115,7 @@ exports.delete_authority = function(req, res, next) {
         if (err) return next("Cannot Connect");
 
         conn.query(
-            "DELETE FROM `heroku_8fddb363146ffaf`.`authority` " +
+            "DELETE FROM `" + dbName + "`.`authority` " +
             "WHERE `AID` = ?; ", [authority_id],
             function(err, results, fields) {
                 if (err) {
