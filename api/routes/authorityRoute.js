@@ -14,10 +14,10 @@ router.route("/")
 
 //TODO - update account details 
 router.route("/login")
-    .put(authority.login);
+    .post(authority.login);
 
 router.route("/logout")
-    .get(authority.logout);
+    .delete(authority.logout);
 
 router.route("/request")
     .put(authority.request);
