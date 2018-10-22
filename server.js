@@ -1,9 +1,9 @@
 var express = require("express"),
-    cors = require('cors'),
+    cors = require("cors"),
     path = require("path"),
     bodyParser = require("body-parser"),
     expressValidator = require("express-validator"),
-    cookieSession = require('cookie-session'),
+    cookieSession = require("cookie-session"),
     app = express(),
     port = process.env.PORT || 8080;
 
