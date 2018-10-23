@@ -24,6 +24,19 @@ app.use(cookieSession({
     maxAge: 60 * 60 * 1000 * 24 // <- hours session expire
 }));
 
+const performance_monitor = (req, res, next) => {
+    // Show response time in millisecond
+    const start = Date.now();
+    res.on("finish", () => {
+        console.log("Load-Balancer Passed to ", req.method, req.url, "|", Date.now() - start, "ms");
+        console.log(req.session)
+    });
+
+    next();
+};
+
+app.use(performance_monitor)
+
 //Student Routes
 app.use("/api/student", require("./api/routes/studentRoute"));
 //Admin Routes
