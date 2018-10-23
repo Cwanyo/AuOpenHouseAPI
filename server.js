@@ -28,7 +28,7 @@ const performance_monitor = (req, res, next) => {
     // Show response time in millisecond
     const start = Date.now();
     res.on("finish", () => {
-        console.log("Load-Balancer Passed to ", req.method, req.url, "|", Date.now() - start, "ms");
+        console.log("Request Passed to ", req.method, req.url, "|", Date.now() - start, "ms");
         console.log(req.session)
     });
 
