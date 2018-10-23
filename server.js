@@ -19,6 +19,7 @@ var connection = require("express-myconnection"),
 app.use(connection(mysql, CLEARDB_DATABASE_URL, "pool"));
 
 app.set("trust proxy", 1);
+
 app.use(cookieSession({
     name: "session_api",
     secret: process.env.SECRET,
