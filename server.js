@@ -20,10 +20,12 @@ app.use(connection(mysql, CLEARDB_DATABASE_URL, "pool"));
 
 app.set("trust proxy", 1);
 app.use(cookieSession({
+    name: "session_api",
     secret: process.env.SECRET,
     maxAge: 60 * 60 * 1000 * 24 // <- hours session expire
 }));
 
+//Middleware - Performance monitor
 const performance_monitor = (req, res, next) => {
     // Show response time in millisecond
     const start = Date.now();
