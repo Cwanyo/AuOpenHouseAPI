@@ -1,16 +1,11 @@
 var express = require("express"),
     cors = require("cors"),
-    path = require("path"),
     bodyParser = require("body-parser"),
     expressValidator = require("express-validator"),
     cookieSession = require("cookie-session"),
     app = express(),
     port = process.env.PORT || 8080;
 
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
-
-app.use(express.static(path.join(__dirname, "public")));
 app.use(cors({ credentials: true, origin: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -25,9 +20,24 @@ app.use(connection(mysql, CLEARDB_DATABASE_URL, "pool"));
 
 app.set("trust proxy", 1);
 app.use(cookieSession({
+    name: "session_api",
     secret: process.env.SECRET,
     maxAge: 60 * 60 * 1000 * 24 // <- hours session expire
 }));
+
+//Middleware - Performance monitor
+const performance_monitor = (req, res, next) => {
+    // Show response time in millisecond
+    const start = Date.now();
+    res.on("finish", () => {
+        console.log("Request Passed to ", req.method, req.url, "|", Date.now() - start, "ms");
+        console.log(req.session)
+    });
+
+    next();
+};
+
+app.use(performance_monitor)
 
 //Student Routes
 app.use("/api/student", require("./api/routes/studentRoute"));

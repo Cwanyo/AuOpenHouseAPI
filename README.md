@@ -14,8 +14,9 @@ URL : https://auopenhouse.herokuapp.com/api/student/
 
 | Title | Method | URL | URL Params | Data Params |
 |-------|:------:|:----|:----------:|:-----------:|
-| Login | PUT | /login | - | idToken=[string] |
-| Logout | GET | /logout | - | - |
+| Login | POST | /login | - | idToken=[string] |
+| Logout | DELETE | /logout | - | - |
+| Register and update account | PUT | /register | - | - |
 | **ALL BELOW ROUTES REQUIRES USER AUTHENTICATION** |
 | Get list of all faculties | GET | /faculties | - | - |
 | Get faculty details | GET | /faculties/:faculty_id | faculty_id=[int] | - |
@@ -45,8 +46,8 @@ URL : https://auopenhouse.herokuapp.com/api/authority/
 
 | Title | Method | URL | URL Params | Data Params |
 |-------|:------:|:----|:----------:|:-----------:|
-| Login | PUT | /login | - | idToken=[string] |
-| Logout | GET | /logout | - | - |
+| Login | POST | /login | - | idToken=[string] |
+| Logout | DELETE | /logout | - | - |
 | Request Account | PUT | /request | - | request=[json] |
 | Get list of all faculties | GET | /faculties | - | - |
 | Get list of all majors in the faculty | GET | /faculties/:faculty_id/majors | faculty_id=[int] | - |

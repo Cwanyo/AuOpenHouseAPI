@@ -11,10 +11,13 @@ router.route("/")
     .get(student.welcome_page);
 
 router.route("/login")
-    .put(student.login);
+    .post(student.login);
 
 router.route("/logout")
-    .get(student.logout);
+    .delete(student.logout);
+
+router.route("/register")
+    .put(student.register_and_update);
 
 //All below routes requires to set MYSQL time zone offset to Thailand (+07:00)
 router.use(student.SetTimeZone);
