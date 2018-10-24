@@ -16,6 +16,9 @@ router.route("/login")
 router.route("/logout")
     .delete(student.logout);
 
+router.route("/register")
+    .put(student.register_and_update);
+
 //All below routes requires to set MYSQL time zone offset to Thailand (+07:00)
 router.use(student.SetTimeZone);
 

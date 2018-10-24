@@ -60,18 +60,22 @@ exports.login = function(req, res, next) {
                 if (err) return next("Cannot Connect");
 
                 conn.query(
-                    "INSERT INTO `" + dbName + "`.`student` (`SID`, `Name`, `Image`, `Email`) " +
-                    "VALUES (?, ?, ?, ?) " +
-                    "ON DUPLICATE KEY UPDATE Name = ?, Image = ?, Email = ?; ", [data.sid, data.name, data.image, data.email, data.name, data.image, data.email],
+                    "SELECT * " +
+                    "FROM " + dbName + ".student " +
+                    "WHERE sid = ?;", [data.sid],
                     function(err, results, fields) {
                         if (err) {
                             console.log(err);
                             return next("Mysql error, check your query");
                         }
 
-                        //Regenerate session
-                        req.session.sid = data.sid;
-                        res.status(200).json({ "isSuccess": true, "message": "Authentication Passed." });
+                        if (results.length == 1) {
+                            //Regenerate session
+                            req.session.sid = data.sid;
+                            res.status(200).json({ "isSuccess": true, "message": "Authentication Passed." });
+                        } else {
+                            res.status(401).json({ "isSuccess": false, "message": "Student not found. Please register for an account." });
+                        }
                     });
             });
 
@@ -89,6 +93,51 @@ exports.logout = function(req, res, next) {
         req.session = null;
         return res.sendStatus(204);
     }
+
+}
+
+exports.register_and_update = function(req, res, next) {
+
+    //validation
+    req.assert("idToken", "idToken is required").notEmpty();
+
+    var errors = req.validationErrors();
+    if (errors) {
+        res.status(422).json(errors);
+        return;
+    }
+
+    firebase.auth().verifyIdToken(req.body.idToken)
+        .then(function(decodedToken) {
+            var data = {
+                sid: decodedToken.uid,
+                name: decodedToken.name,
+                image: decodedToken.picture,
+                email: decodedToken.email
+            };
+
+            req.getConnection(function(err, conn) {
+
+                if (err) return next("Cannot Connect");
+
+                conn.query(
+                    "INSERT INTO `" + dbName + "`.`student` (`SID`, `Name`, `Image`, `Email`) " +
+                    "VALUES (?, ?, ?, ?) " +
+                    "ON DUPLICATE KEY UPDATE Name = ?, Image = ?, Email = ?; ", [data.sid, data.name, data.image, data.email, data.name, data.image, data.email],
+                    function(err, results, fields) {
+                        if (err) {
+                            console.log(err);
+                            return next("Mysql error, check your query");
+                        }
+
+                        res.status(200).json({ "isSuccess": true, "message": "Account registered and updated." });
+                    });
+            });
+
+        })
+        .catch(function(error) {
+            res.status(401).json({ "isSuccess": false, "message": "Fail to Verify IdToken." });
+        });
 
 }
 
