@@ -16,7 +16,6 @@ URL : https://auopenhouse.herokuapp.com/api/student/
 |-------|:------:|:----|:----------:|:-----------:|
 | Login | POST | /login | - | idToken=[string] |
 | Logout | DELETE | /logout | - | - |
-| Register and update account | PUT | /register | - | - |
 | **ALL BELOW ROUTES REQUIRES USER AUTHENTICATION** |
 | Get list of all faculties | GET | /faculties | - | - |
 | Get faculty details | GET | /faculties/:faculty_id | faculty_id=[int] | - |
