@@ -38,8 +38,19 @@ const performance_monitor = (req, res, next) => {
     next();
 };
 
-app.use(performance_monitor)
+//Test - Server and MySql connection
+const test_connection = (req, res, next) => {
+    // Get connection
+    req.getConnection(function(err, conn) {
+        if (err) return res.sendStatus(503);
+        return res.sendStatus(200);
+    });
+};
 
+//Monitor Route
+app.use(performance_monitor);
+//Test Route
+app.use("/test-connection", test_connection);
 //Student Routes
 app.use("/api/student", require("./api/routes/studentRoute"));
 //Admin Routes
